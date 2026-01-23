@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CreateProductoData, UpdateProductoData, Producto } from '../../../types/api';
+import { CreateProductoData, UpdateProductoData, Producto, ProductoFormErrors } from '../../../types/api';
 import { useBuffets } from '../../hooks/useBuffets';
 
 interface ProductoFormProps {
@@ -16,7 +16,7 @@ export default function ProductoForm({ onSubmit, onCancel, isSubmitting = false,
     valor: producto?.valor || 0,
     descripcion: producto?.descripcion || ''
   });
-  const [errors, setErrors] = useState<Partial<CreateProductoData>>({});
+  const [errors, setErrors] = useState<ProductoFormErrors>({});
   
   const { buffets, loading: buffetsLoading } = useBuffets();
 
@@ -33,7 +33,7 @@ export default function ProductoForm({ onSubmit, onCancel, isSubmitting = false,
   }, [producto]);
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<CreateProductoData> = {};
+    const newErrors: ProductoFormErrors = {};
 
     if (!formData.nombre.trim()) {
       newErrors.nombre = 'El nombre es requerido';

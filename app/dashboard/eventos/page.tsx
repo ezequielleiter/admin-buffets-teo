@@ -313,7 +313,7 @@ function EventosContent() {
               Confirmar Eliminación
             </h3>
             <p className="text-slate-600 dark:text-slate-400 mb-6">
-              ¿Estás seguro de que quieres eliminar el evento "{eventoToDelete.nombre}"? 
+              ¿Estás seguro de que quieres eliminar el evento &ldquo;{eventoToDelete.nombre}&rdquo;? 
               Esta acción no se puede deshacer.
             </p>
             <div className="flex gap-3">

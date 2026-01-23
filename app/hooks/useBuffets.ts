@@ -1,10 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { 
   Buffet, 
   BuffetFilters, 
-  CreateBuffetData, 
-  PaginatedResponse,
-  ApiError 
+  CreateBuffetData 
 } from '../../types/api';
 import { useAuth } from './useAuth';
 
@@ -31,7 +29,7 @@ export function useBuffets(filters: BuffetFilters = {}): UseBuffetsResult {
     error: null
   });
 
-  const buildQuery = (params: Record<string, any>, user): string => {
+  const buildQuery = (params: BuffetFilters, user: { id: string; role?: string } | null): string => {
     const query = new URLSearchParams();
     
     // Aplicar filtros automáticos según el rol del usuario
@@ -51,7 +49,7 @@ export function useBuffets(filters: BuffetFilters = {}): UseBuffetsResult {
     return query.toString() ? `?${query.toString()}` : '';
   };
 
-  const loadBuffets = async () => {
+  const loadBuffets = useCallback(async () => {
     if (!user) return; // No cargar hasta que tengamos la información del usuario
     console.log(user);
     
@@ -85,7 +83,7 @@ export function useBuffets(filters: BuffetFilters = {}): UseBuffetsResult {
         error: error instanceof Error ? error.message : 'Error desconocido'
       }));
     }
-  };
+  }, [filters, user]);
 
   const createBuffet = async (buffetData: CreateBuffetData): Promise<Buffet | null> => {
     try {
@@ -120,7 +118,7 @@ export function useBuffets(filters: BuffetFilters = {}): UseBuffetsResult {
     if (user) {
       loadBuffets();
     }
-  }, [user, JSON.stringify(filters)]);
+  }, [user, loadBuffets]);
 
   return {
     ...data,

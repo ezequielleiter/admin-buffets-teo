@@ -321,7 +321,7 @@ function PromosContent() {
               Confirmar Eliminación
             </h3>
             <p className="text-slate-600 dark:text-slate-400 mb-6">
-              ¿Estás seguro de que quieres eliminar la promoción "{promoToDelete.nombre}"? 
+              ¿Estás seguro de que quieres eliminar la promoción &ldquo;{promoToDelete.nombre}&rdquo;? 
               Esta acción no se puede deshacer.
             </p>
             <div className="flex gap-3">

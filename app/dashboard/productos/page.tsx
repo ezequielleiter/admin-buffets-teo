@@ -301,7 +301,7 @@ function ProductosContent() {
               Confirmar Eliminación
             </h3>
             <p className="text-slate-600 dark:text-slate-400 mb-6">
-              ¿Estás seguro de que quieres eliminar el producto "{productoToDelete.nombre}"? 
+              ¿Estás seguro de que quieres eliminar el producto &ldquo;{productoToDelete.nombre}&rdquo;? 
               Esta acción no se puede deshacer.
             </p>
             <div className="flex gap-3">

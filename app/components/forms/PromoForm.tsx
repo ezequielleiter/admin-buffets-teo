@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CreatePromoData, UpdatePromoData, Promo } from '../../../types/api';
+import { CreatePromoData, UpdatePromoData, Promo, PromoFormErrors } from '../../../types/api';
 import { useBuffets } from '../../hooks/useBuffets';
 import { useProductos } from '../../hooks/useProductos';
 
@@ -17,7 +17,7 @@ export default function PromoForm({ onSubmit, onCancel, isSubmitting = false, pr
     productos: promo?.productos || [],
     valor: promo?.valor || 0
   });
-  const [errors, setErrors] = useState<Partial<CreatePromoData>>({});
+  const [errors, setErrors] = useState<PromoFormErrors>({});
   
   const { buffets, loading: buffetsLoading } = useBuffets();
   const { productos, loading: productosLoading } = useProductos({ 
@@ -37,7 +37,7 @@ export default function PromoForm({ onSubmit, onCancel, isSubmitting = false, pr
   }, [promo]);
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<CreatePromoData> = {};
+    const newErrors: PromoFormErrors = {};
 
     if (!formData.nombre.trim()) {
       newErrors.nombre = 'El nombre es requerido';

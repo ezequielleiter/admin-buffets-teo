@@ -129,6 +129,21 @@ export interface UpdatePromoData {
   valor: number;
 }
 
+// Tipos de errores para formularios
+export interface ProductoFormErrors {
+  buffet_id?: string;
+  nombre?: string;
+  valor?: string;
+  descripcion?: string;
+}
+
+export interface PromoFormErrors {
+  buffet_id?: string;
+  nombre?: string;
+  productos?: string;
+  valor?: string;
+}
+
 export interface CreateOrdenData {
   buffet_id: string;
   evento_id: string;
