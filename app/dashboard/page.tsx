@@ -1,6 +1,16 @@
 'use client';
 
-export default function DashboardPage() {
+import ProtectedRoute from '../components/ProtectedRoute';
+import { useAuth } from '../hooks/useAuth';
+
+function DashboardContent() {
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+      logout();
+    }
+  };
   return (
     <div className="flex h-screen overflow-hidden bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100">
       {/* Sidebar Navigation */}
@@ -43,7 +53,26 @@ export default function DashboardPage() {
               <span className="material-symbols-outlined">settings</span>
               <span>Configuración</span>
             </a>
+          {/* User Info & Logout */}
+          <div className="mt-auto pt-6 border-t border-slate-600">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                <span className="material-symbols-outlined text-white text-sm">person</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-white truncate">{user?.name || 'Usuario'}</p>
+                <p className="text-xs text-slate-400 truncate">{user?.email}</p>
+              </div>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-3 w-full px-4 py-3 rounded-lg hover:bg-red-600/20 text-red-400 hover:text-red-300 transition-colors"
+            >
+              <span className="material-symbols-outlined">logout</span>
+              <span>Cerrar Sesión</span>
+            </button>
           </div>
+        </div>
         </div>
       </aside>
 
@@ -63,11 +92,7 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="flex items-center gap-6">
-            <button className="relative text-slate-500 hover:text-[#0d6dfd] transition-colors">
-              <span className="material-symbols-outlined">notifications</span>
-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-[#fc8d32] rounded-full"></span>
-            </button>
-            <div className="flex items-center gap-3 pl-6 border-l border-slate-200 dark:border-slate-700">
+            <div className="flex items-center gap-3 pl-6 dark:border-slate-700">
               <div className="text-right hidden sm:block">
                 <p className="text-sm font-bold text-slate-800 dark:text-white">Admin Buffests</p>
                 <p className="text-xs text-slate-500">Super Administrador</p>
@@ -285,5 +310,13 @@ export default function DashboardPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <ProtectedRoute>
+      <DashboardContent />
+    </ProtectedRoute>
   );
 }

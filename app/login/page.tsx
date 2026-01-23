@@ -1,27 +1,67 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import teoAuth from '../lib/teoAuth';
+import AuthDebugPanel from '../components/AuthDebugPanel';
 
 export default function LoginPage() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // TODO: Implement proper authentication logic
-    console.log('Login attempt:', { username, password });
+  // Check if user is already authenticated
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        console.log('🔍 Verificando autenticación existente...');
+        const sessionData = await teoAuth.getCurrentSession();
+        if (sessionData?.user && teoAuth.isSessionValid) {
+          console.log('✅ Usuario ya autenticado, redirigiendo al dashboard');
+          router.push('/dashboard');
+        } else {
+          console.log('ℹ️ No hay sesión activa');
+        }
+      } catch (error) {
+        console.error('⚠️ Error checking auth (no crítico):', error);
+        // No es crítico si no puede verificar la sesión al inicio
+        // El usuario simplemente permanecerá en el login
+      }
+    };
     
-    // For demo purposes, redirect to dashboard on any login attempt
-    // In a real app, you would validate credentials first
-    if (username && password) {
-      router.push('/dashboard');
+    // Pequeño delay para evitar problemas de hidratación
+    const timer = setTimeout(checkAuth, 100);
+    return () => clearTimeout(timer);
+  }, [router]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const result = await teoAuth.authenticate(email, password);
+      
+      if (result.success) {
+        // Redirect to dashboard
+        router.push('/dashboard');
+      } else {
+        setError(result.error || 'Error en el inicio de sesión. Verifica tus credenciales.');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setError('Error de conexión. Por favor, intenta nuevamente.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background-light dark:bg-background-dark font-display">
+    <>
+      <AuthDebugPanel />
+      <div className="min-h-screen flex flex-col bg-background-light dark:bg-background-dark font-display">
         {/* Top Navigation Bar */}
         <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-[#dadfe7] dark:border-slate-800 bg-white dark:bg-slate-900 px-10 py-3">
           <div className="flex items-center gap-4 text-buffests-text dark:text-white">
@@ -46,23 +86,31 @@ export default function LoginPage() {
                 </div>
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                  {/* Username Field */}
+                  {/* Error Message */}
+                  {error && (
+                    <div className="w-full p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+                      <p className="text-red-800 dark:text-red-300 text-sm font-medium">{error}</p>
+                    </div>
+                  )}
+                  
+                  {/* Email Field */}
                   <div className="flex flex-col w-full">
                     <label className="flex flex-col w-full">
                       <p className="text-buffests-text dark:text-slate-200 text-sm font-semibold leading-normal pb-2">
-                        Username
+                        Email
                       </p>
                       <div className="relative">
                         <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#5e718d] text-xl">
-                          person
+                          email
                         </span>
                         <input
                           className="form-input flex w-full resize-none overflow-hidden rounded-lg text-buffests-text dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/20 border border-[#dadfe7] dark:border-slate-700 bg-white dark:bg-slate-800 focus:border-primary h-12 placeholder:text-[#5e718d] pl-10 pr-4 text-base font-normal leading-normal transition-colors"
-                          placeholder="Enter your username"
-                          type="text"
-                          value={username}
-                          onChange={(e) => setUsername(e.target.value)}
+                          placeholder="Ingresa tu email"
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
                           required
+                          disabled={isLoading}
                         />
                       </div>
                     </label>
@@ -72,7 +120,7 @@ export default function LoginPage() {
                   <div className="flex flex-col w-full">
                     <label className="flex flex-col w-full">
                       <p className="text-buffests-text dark:text-slate-200 text-sm font-semibold leading-normal pb-2">
-                        Password
+                        Contraseña
                       </p>
                       <div className="relative">
                         <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#5e718d] text-xl">
@@ -80,11 +128,12 @@ export default function LoginPage() {
                         </span>
                         <input
                           className="form-input flex w-full resize-none overflow-hidden rounded-lg text-buffests-text dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/20 border border-[#dadfe7] dark:border-slate-700 bg-white dark:bg-slate-800 focus:border-primary h-12 placeholder:text-[#5e718d] pl-10 pr-4 text-base font-normal leading-normal transition-colors"
-                          placeholder="Enter your password"
+                          placeholder="Ingresa tu contraseña"
                           type="password"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           required
+                          disabled={isLoading}
                         />
                       </div>
                     </label>
@@ -93,10 +142,18 @@ export default function LoginPage() {
                   {/* Login Button */}
                   <div className="flex pt-4">
                     <button
-                      className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-blue-600 hover:bg-blue-700 text-white text-base font-bold leading-normal tracking-[0.015em] transition-all shadow-md active:scale-[0.98]"
+                      className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white text-base font-bold leading-normal tracking-[0.015em] transition-all shadow-md active:scale-[0.98] disabled:active:scale-100"
                       type="submit"
+                      disabled={isLoading}
                     >
-                      <span className="truncate">Sign In</span>
+                      {isLoading ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          <span className="truncate">Iniciando sesión...</span>
+                        </div>
+                      ) : (
+                        <span className="truncate">Iniciar Sesión</span>
+                      )}
                     </button>
                   </div>
                 </form>
@@ -105,5 +162,6 @@ export default function LoginPage() {
           </div>
         </main>
       </div>
+    </>
   );
 }
