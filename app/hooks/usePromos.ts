@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { 
   Promo, 
   PromoFilters, 
-  CreatePromoData, 
+  CreatePromoData,
+  UpdatePromoData, 
   PaginatedResponse,
   ApiError 
 } from '../../types/api';
@@ -13,6 +14,8 @@ interface UsePromosResult {
   loading: boolean;
   error: string | null;
   createPromo: (data: CreatePromoData) => Promise<Promo | null>;
+  updatePromo: (id: string, data: UpdatePromoData) => Promise<Promo | null>;
+  deletePromo: (id: string) => Promise<boolean>;
   reload: () => Promise<void>;
 }
 
@@ -101,6 +104,62 @@ export function usePromos(filters: PromoFilters = {}): UsePromosResult {
     }
   };
 
+  const updatePromo = async (id: string, promoData: UpdatePromoData): Promise<Promo | null> => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin-buffets/promos/${id}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(promoData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al actualizar promo');
+      }
+
+      const result = await response.json();
+      await loadPromos(); // Recargar lista
+      return result.promo;
+    } catch (error) {
+      console.error('Error updating promo:', error);
+      setData(prev => ({
+        ...prev,
+        error: error instanceof Error ? error.message : 'Error al actualizar promo'
+      }));
+      return null;
+    }
+  };
+
+  const deletePromo = async (id: string): Promise<boolean> => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin-buffets/promos/${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al eliminar promo');
+      }
+
+      await loadPromos(); // Recargar lista
+      return true;
+    } catch (error) {
+      console.error('Error deleting promo:', error);
+      setData(prev => ({
+        ...prev,
+        error: error instanceof Error ? error.message : 'Error al eliminar promo'
+      }));
+      return false;
+    }
+  };
+
   useEffect(() => {
     loadPromos();
   }, [JSON.stringify(filters)]);
@@ -108,6 +167,8 @@ export function usePromos(filters: PromoFilters = {}): UsePromosResult {
   return {
     ...data,
     createPromo,
+    updatePromo,
+    deletePromo,
     reload: loadPromos
   };
 }

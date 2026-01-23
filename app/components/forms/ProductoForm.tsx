@@ -1,23 +1,36 @@
-import React, { useState } from 'react';
-import { CreateProductoData } from '../../../types/api';
+import React, { useState, useEffect } from 'react';
+import { CreateProductoData, UpdateProductoData, Producto } from '../../../types/api';
 import { useBuffets } from '../../hooks/useBuffets';
 
 interface ProductoFormProps {
-  onSubmit: (data: CreateProductoData) => Promise<void>;
+  onSubmit: (data: CreateProductoData | UpdateProductoData) => Promise<void>;
   onCancel: () => void;
   isSubmitting?: boolean;
+  producto?: Producto; // Para edición
 }
 
-export default function ProductoForm({ onSubmit, onCancel, isSubmitting = false }: ProductoFormProps) {
-  const [formData, setFormData] = useState<CreateProductoData>({
-    buffet_id: '',
-    nombre: '',
-    valor: 0,
-    descripcion: ''
+export default function ProductoForm({ onSubmit, onCancel, isSubmitting = false, producto }: ProductoFormProps) {
+  const [formData, setFormData] = useState<CreateProductoData | UpdateProductoData>({
+    buffet_id: producto?.buffet_id || '',
+    nombre: producto?.nombre || '',
+    valor: producto?.valor || 0,
+    descripcion: producto?.descripcion || ''
   });
   const [errors, setErrors] = useState<Partial<CreateProductoData>>({});
   
   const { buffets, loading: buffetsLoading } = useBuffets();
+
+  // Efecto para actualizar el formulario cuando se pasa un producto para edición
+  useEffect(() => {
+    if (producto) {
+      setFormData({
+        buffet_id: producto.buffet_id,
+        nombre: producto.nombre,
+        valor: producto.valor,
+        descripcion: producto.descripcion
+      });
+    }
+  }, [producto]);
 
   const validateForm = (): boolean => {
     const newErrors: Partial<CreateProductoData> = {};
@@ -57,7 +70,7 @@ export default function ProductoForm({ onSubmit, onCancel, isSubmitting = false 
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-xl max-w-md w-full mx-4">
         <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">
-          Crear Nuevo Producto
+          {producto ? 'Editar Producto' : 'Crear Nuevo Producto'}
         </h2>
         
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -172,10 +185,10 @@ export default function ProductoForm({ onSubmit, onCancel, isSubmitting = false 
               {isSubmitting ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Creando...
+                  {producto ? 'Actualizando...' : 'Creando...'}
                 </>
               ) : (
-                'Crear Producto'
+                producto ? 'Actualizar Producto' : 'Crear Producto'
               )}
             </button>
           </div>

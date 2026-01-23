@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { 
   Evento, 
   EventoFilters, 
-  CreateEventoData, 
+  CreateEventoData,
+  UpdateEventoData, 
   PaginatedResponse,
   ApiError 
 } from '../../types/api';
@@ -13,6 +14,8 @@ interface UseEventosResult {
   loading: boolean;
   error: string | null;
   createEvento: (data: CreateEventoData) => Promise<Evento | null>;
+  updateEvento: (id: string, data: UpdateEventoData) => Promise<Evento | null>;
+  deleteEvento: (id: string) => Promise<boolean>;
   reload: () => Promise<void>;
 }
 
@@ -101,6 +104,62 @@ export function useEventos(filters: EventoFilters = {}): UseEventosResult {
     }
   };
 
+  const updateEvento = async (id: string, eventoData: UpdateEventoData): Promise<Evento | null> => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin-buffets/eventos/${id}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(eventoData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al actualizar evento');
+      }
+
+      const result = await response.json();
+      await loadEventos(); // Recargar lista
+      return result.evento;
+    } catch (error) {
+      console.error('Error updating evento:', error);
+      setData(prev => ({
+        ...prev,
+        error: error instanceof Error ? error.message : 'Error al actualizar evento'
+      }));
+      return null;
+    }
+  };
+
+  const deleteEvento = async (id: string): Promise<boolean> => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin-buffets/eventos/${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al eliminar evento');
+      }
+
+      await loadEventos(); // Recargar lista
+      return true;
+    } catch (error) {
+      console.error('Error deleting evento:', error);
+      setData(prev => ({
+        ...prev,
+        error: error instanceof Error ? error.message : 'Error al eliminar evento'
+      }));
+      return false;
+    }
+  };
+
   useEffect(() => {
     loadEventos();
   }, [JSON.stringify(filters)]);
@@ -108,6 +167,8 @@ export function useEventos(filters: EventoFilters = {}): UseEventosResult {
   return {
     ...data,
     createEvento,
+    updateEvento,
+    deleteEvento,
     reload: loadEventos
   };
 }

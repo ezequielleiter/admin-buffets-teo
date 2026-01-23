@@ -5,31 +5,75 @@ import ProtectedRoute from '../../components/ProtectedRoute';
 import { useProductos } from '../../hooks/useProductos';
 import { useAuth } from '../../hooks/useAuth';
 import ProductoForm from '../../components/forms/ProductoForm';
-import { CreateProductoData, Producto } from '../../../types/api';
+import { CreateProductoData, UpdateProductoData, Producto } from '../../../types/api';
 
 function ProductosContent() {
   const { user } = useAuth();
   const [showForm, setShowForm] = useState(false);
+  const [editingProducto, setEditingProducto] = useState<Producto | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [productoToDelete, setProductoToDelete] = useState<Producto | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [filters, setFilters] = useState({
     nombre: ''
   });
   
-  const { productos, total, loading, error, createProducto, reload } = useProductos(filters);
+  const { productos, total, loading, error, createProducto, updateProducto, deleteProducto, reload } = useProductos(filters);
 
-  const handleCreateProducto = async (data: CreateProductoData) => {
+  const handleSubmitProducto = async (data: CreateProductoData | UpdateProductoData) => {
     setIsSubmitting(true);
     try {
-      const newProducto = await createProducto(data);
-      if (newProducto) {
+      let result;
+      if (editingProducto) {
+        result = await updateProducto(editingProducto._id!, data as UpdateProductoData);
+      } else {
+        result = await createProducto(data as CreateProductoData);
+      }
+      
+      if (result) {
         setShowForm(false);
+        setEditingProducto(null);
         // Opcional: mostrar notificación de éxito
       }
     } catch (error) {
-      console.error('Error creating producto:', error);
+      console.error('Error submitting producto:', error);
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleEditProducto = (producto: Producto) => {
+    setEditingProducto(producto);
+    setShowForm(true);
+  };
+
+  const handleDeleteProducto = (producto: Producto) => {
+    setProductoToDelete(producto);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteProducto = async () => {
+    if (!productoToDelete) return;
+    
+    setIsDeleting(true);
+    try {
+      const success = await deleteProducto(productoToDelete._id!);
+      if (success) {
+        setShowDeleteModal(false);
+        setProductoToDelete(null);
+        // Opcional: mostrar notificación de éxito
+      }
+    } catch (error) {
+      console.error('Error deleting producto:', error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleCancelForm = () => {
+    setShowForm(false);
+    setEditingProducto(null);
   };
 
   if (error) {
@@ -192,10 +236,16 @@ function ProductosContent() {
                           <span className="material-symbols-outlined">restaurant_menu</span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <button className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                          <button 
+                            onClick={() => handleEditProducto(producto)}
+                            className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                          >
                             <span className="material-symbols-outlined text-sm">edit</span>
                           </button>
-                          <button className="p-1 text-red-400 hover:text-red-600 rounded hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                          <button 
+                            onClick={() => handleDeleteProducto(producto)}
+                            className="p-1 text-red-400 hover:text-red-600 rounded hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                          >
                             <span className="material-symbols-outlined text-sm">delete</span>
                           </button>
                         </div>
@@ -236,10 +286,49 @@ function ProductosContent() {
       {/* Form Modal */}
       {showForm && (
         <ProductoForm
-          onSubmit={handleCreateProducto}
-          onCancel={() => setShowForm(false)}
+          onSubmit={handleSubmitProducto}
+          onCancel={handleCancelForm}
           isSubmitting={isSubmitting}
+          producto={editingProducto || undefined}
         />
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && productoToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-xl max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">
+              Confirmar Eliminación
+            </h3>
+            <p className="text-slate-600 dark:text-slate-400 mb-6">
+              ¿Estás seguro de que quieres eliminar el producto "{productoToDelete.nombre}"? 
+              Esta acción no se puede deshacer.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                disabled={isDeleting}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmDeleteProducto}
+                disabled={isDeleting}
+                className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {isDeleting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Eliminando...
+                  </>
+                ) : (
+                  'Eliminar'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

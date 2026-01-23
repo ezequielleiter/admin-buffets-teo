@@ -5,33 +5,77 @@ import ProtectedRoute from '../../components/ProtectedRoute';
 import { useEventos } from '../../hooks/useEventos';
 import { useAuth } from '../../hooks/useAuth';
 import EventoForm from '../../components/forms/EventoForm';
-import { CreateEventoData, Evento } from '../../../types/api';
+import { CreateEventoData, UpdateEventoData, Evento } from '../../../types/api';
 
 function EventosContent() {
   const { user } = useAuth();
   const [showForm, setShowForm] = useState(false);
+  const [editingEvento, setEditingEvento] = useState<Evento | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [eventoToDelete, setEventoToDelete] = useState<Evento | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [filters, setFilters] = useState({
     buffet_id: '',
     fecha_desde: '',
     fecha_hasta: ''
   });
   
-  const { eventos, total, loading, error, createEvento, reload } = useEventos(filters);
+  const { eventos, total, loading, error, createEvento, updateEvento, deleteEvento, reload } = useEventos(filters);
 
-  const handleCreateEvento = async (data: CreateEventoData) => {
+  const handleSubmitEvento = async (data: CreateEventoData | UpdateEventoData) => {
     setIsSubmitting(true);
     try {
-      const newEvento = await createEvento(data);
-      if (newEvento) {
+      let result;
+      if (editingEvento) {
+        result = await updateEvento(editingEvento._id!, data as UpdateEventoData);
+      } else {
+        result = await createEvento(data as CreateEventoData);
+      }
+      
+      if (result) {
         setShowForm(false);
+        setEditingEvento(null);
         // Opcional: mostrar notificación de éxito
       }
     } catch (error) {
-      console.error('Error creating evento:', error);
+      console.error('Error submitting evento:', error);
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleEditEvento = (evento: Evento) => {
+    setEditingEvento(evento);
+    setShowForm(true);
+  };
+
+  const handleDeleteEvento = (evento: Evento) => {
+    setEventoToDelete(evento);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteEvento = async () => {
+    if (!eventoToDelete) return;
+    
+    setIsDeleting(true);
+    try {
+      const success = await deleteEvento(eventoToDelete._id!);
+      if (success) {
+        setShowDeleteModal(false);
+        setEventoToDelete(null);
+        // Opcional: mostrar notificación de éxito
+      }
+    } catch (error) {
+      console.error('Error deleting evento:', error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleCancelForm = () => {
+    setShowForm(false);
+    setEditingEvento(null);
   };
 
   const formatDate = (dateString: string) => {
@@ -228,10 +272,16 @@ function EventosContent() {
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <button className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                          <button 
+                            onClick={() => handleEditEvento(evento)}
+                            className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                          >
                             <span className="material-symbols-outlined">edit</span>
                           </button>
-                          <button className="p-2 text-red-400 hover:text-red-600 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                          <button 
+                            onClick={() => handleDeleteEvento(evento)}
+                            className="p-2 text-red-400 hover:text-red-600 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                          >
                             <span className="material-symbols-outlined">delete</span>
                           </button>
                         </div>
@@ -248,10 +298,49 @@ function EventosContent() {
       {/* Form Modal */}
       {showForm && (
         <EventoForm
-          onSubmit={handleCreateEvento}
-          onCancel={() => setShowForm(false)}
+          onSubmit={handleSubmitEvento}
+          onCancel={handleCancelForm}
           isSubmitting={isSubmitting}
+          evento={editingEvento || undefined}
         />
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && eventoToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-xl max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">
+              Confirmar Eliminación
+            </h3>
+            <p className="text-slate-600 dark:text-slate-400 mb-6">
+              ¿Estás seguro de que quieres eliminar el evento "{eventoToDelete.nombre}"? 
+              Esta acción no se puede deshacer.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                disabled={isDeleting}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmDeleteEvento}
+                disabled={isDeleting}
+                className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {isDeleting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Eliminando...
+                  </>
+                ) : (
+                  'Eliminar'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

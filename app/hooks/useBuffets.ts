@@ -40,9 +40,7 @@ export function useBuffets(filters: BuffetFilters = {}): UseBuffetsResult {
       // Para usuarios admin, filtrar automáticamente por su user_id
       finalParams.user_id = user.id;
     }
-    // Para superadmin no se aplican filtros automáticos
-    console.log("FILETS", finalParams);
-    
+
     Object.entries(finalParams).forEach(([key, value]) => {
       if (value !== undefined && value !== '') {
         query.append(key, value.toString());

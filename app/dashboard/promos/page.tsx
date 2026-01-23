@@ -5,31 +5,75 @@ import ProtectedRoute from '../../components/ProtectedRoute';
 import { usePromos } from '../../hooks/usePromos';
 import { useAuth } from '../../hooks/useAuth';
 import PromoForm from '../../components/forms/PromoForm';
-import { CreatePromoData, Promo } from '../../../types/api';
+import { CreatePromoData, UpdatePromoData, Promo } from '../../../types/api';
 
 function PromosContent() {
   const { user } = useAuth();
   const [showForm, setShowForm] = useState(false);
+  const [editingPromo, setEditingPromo] = useState<Promo | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [promoToDelete, setPromoToDelete] = useState<Promo | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [filters, setFilters] = useState({
     nombre: '',
   });
   
-  const { promos, total, loading, error, createPromo, reload } = usePromos(filters);
+  const { promos, total, loading, error, createPromo, updatePromo, deletePromo, reload } = usePromos(filters);
 
-  const handleCreatePromo = async (data: CreatePromoData) => {
+  const handleSubmitPromo = async (data: CreatePromoData | UpdatePromoData) => {
     setIsSubmitting(true);
     try {
-      const newPromo = await createPromo(data);
-      if (newPromo) {
+      let result;
+      if (editingPromo) {
+        result = await updatePromo(editingPromo._id!, data as UpdatePromoData);
+      } else {
+        result = await createPromo(data as CreatePromoData);
+      }
+      
+      if (result) {
         setShowForm(false);
+        setEditingPromo(null);
         // Opcional: mostrar notificación de éxito
       }
     } catch (error) {
-      console.error('Error creating promo:', error);
+      console.error('Error submitting promo:', error);
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleEditPromo = (promo: Promo) => {
+    setEditingPromo(promo);
+    setShowForm(true);
+  };
+
+  const handleDeletePromo = (promo: Promo) => {
+    setPromoToDelete(promo);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeletePromo = async () => {
+    if (!promoToDelete) return;
+    
+    setIsDeleting(true);
+    try {
+      const success = await deletePromo(promoToDelete._id!);
+      if (success) {
+        setShowDeleteModal(false);
+        setPromoToDelete(null);
+        // Opcional: mostrar notificación de éxito
+      }
+    } catch (error) {
+      console.error('Error deleting promo:', error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleCancelForm = () => {
+    setShowForm(false);
+    setEditingPromo(null);
   };
 
   if (error) {
@@ -192,10 +236,16 @@ function PromosContent() {
                           <span className="material-symbols-outlined">local_offer</span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <button className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                          <button 
+                            onClick={() => handleEditPromo(promo)}
+                            className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                          >
                             <span className="material-symbols-outlined text-sm">edit</span>
                           </button>
-                          <button className="p-1 text-red-400 hover:text-red-600 rounded hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                          <button 
+                            onClick={() => handleDeletePromo(promo)}
+                            className="p-1 text-red-400 hover:text-red-600 rounded hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                          >
                             <span className="material-symbols-outlined text-sm">delete</span>
                           </button>
                         </div>
@@ -256,10 +306,49 @@ function PromosContent() {
       {/* Form Modal */}
       {showForm && (
         <PromoForm
-          onSubmit={handleCreatePromo}
-          onCancel={() => setShowForm(false)}
+          onSubmit={handleSubmitPromo}
+          onCancel={handleCancelForm}
           isSubmitting={isSubmitting}
+          promo={editingPromo || undefined}
         />
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && promoToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-xl max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">
+              Confirmar Eliminación
+            </h3>
+            <p className="text-slate-600 dark:text-slate-400 mb-6">
+              ¿Estás seguro de que quieres eliminar la promoción "{promoToDelete.nombre}"? 
+              Esta acción no se puede deshacer.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                disabled={isDeleting}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmDeletePromo}
+                disabled={isDeleting}
+                className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {isDeleting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Eliminando...
+                  </>
+                ) : (
+                  'Eliminar'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

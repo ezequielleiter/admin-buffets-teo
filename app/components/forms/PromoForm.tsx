@@ -1,20 +1,21 @@
-import React, { useState } from 'react';
-import { CreatePromoData } from '../../../types/api';
+import React, { useState, useEffect } from 'react';
+import { CreatePromoData, UpdatePromoData, Promo } from '../../../types/api';
 import { useBuffets } from '../../hooks/useBuffets';
 import { useProductos } from '../../hooks/useProductos';
 
 interface PromoFormProps {
-  onSubmit: (data: CreatePromoData) => Promise<void>;
+  onSubmit: (data: CreatePromoData | UpdatePromoData) => Promise<void>;
   onCancel: () => void;
   isSubmitting?: boolean;
+  promo?: Promo; // Para edición
 }
 
-export default function PromoForm({ onSubmit, onCancel, isSubmitting = false }: PromoFormProps) {
-  const [formData, setFormData] = useState<CreatePromoData>({
-    buffet_id: '',
-    nombre: '',
-    productos: [],
-    valor: 0
+export default function PromoForm({ onSubmit, onCancel, isSubmitting = false, promo }: PromoFormProps) {
+  const [formData, setFormData] = useState<CreatePromoData | UpdatePromoData>({
+    buffet_id: promo?.buffet_id || '',
+    nombre: promo?.nombre || '',
+    productos: promo?.productos || [],
+    valor: promo?.valor || 0
   });
   const [errors, setErrors] = useState<Partial<CreatePromoData>>({});
   
@@ -22,6 +23,18 @@ export default function PromoForm({ onSubmit, onCancel, isSubmitting = false }: 
   const { productos, loading: productosLoading } = useProductos({ 
     buffet_id: formData.buffet_id 
   });
+
+  // Efecto para actualizar el formulario cuando se pasa una promo para edición
+  useEffect(() => {
+    if (promo) {
+      setFormData({
+        buffet_id: promo.buffet_id,
+        nombre: promo.nombre,
+        productos: promo.productos,
+        valor: promo.valor
+      });
+    }
+  }, [promo]);
 
   const validateForm = (): boolean => {
     const newErrors: Partial<CreatePromoData> = {};
@@ -61,7 +74,7 @@ export default function PromoForm({ onSubmit, onCancel, isSubmitting = false }: 
     setFormData(prev => ({
       ...prev,
       buffet_id: buffetId,
-      productos: [] // Reset productos cuando cambia el buffet
+      productos: promo ? prev.productos : [] // Solo reset productos si no es edición
     }));
     if (errors.buffet_id) {
       setErrors(prev => ({ ...prev, buffet_id: undefined }));
@@ -89,7 +102,7 @@ export default function PromoForm({ onSubmit, onCancel, isSubmitting = false }: 
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">
-          Crear Nueva Promoción
+          {promo ? 'Editar Promoción' : 'Crear Nueva Promoción'}
         </h2>
         
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -257,10 +270,10 @@ export default function PromoForm({ onSubmit, onCancel, isSubmitting = false }: 
               {isSubmitting ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Creando...
+                  {promo ? 'Actualizando...' : 'Creando...'}
                 </>
               ) : (
-                'Crear Promoción'
+                promo ? 'Actualizar Promoción' : 'Crear Promoción'
               )}
             </button>
           </div>

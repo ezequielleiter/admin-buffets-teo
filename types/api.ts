@@ -95,6 +95,12 @@ export interface CreateEventoData {
   buffet_id: string;
 }
 
+export interface UpdateEventoData {
+  nombre: string;
+  fecha: string; // ISO string
+  buffet_id: string;
+}
+
 export interface CreateProductoData {
   buffet_id: string;
   nombre: string;
@@ -102,7 +108,21 @@ export interface CreateProductoData {
   descripcion: string;
 }
 
+export interface UpdateProductoData {
+  buffet_id: string;
+  nombre: string;
+  valor: number;
+  descripcion: string;
+}
+
 export interface CreatePromoData {
+  buffet_id: string;
+  nombre: string;
+  productos: string[];
+  valor: number;
+}
+
+export interface UpdatePromoData {
   buffet_id: string;
   nombre: string;
   productos: string[];
