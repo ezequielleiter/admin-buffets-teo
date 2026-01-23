@@ -20,7 +20,6 @@ export default function DashboardLayout({ children, title = "Dashboard" }: Dashb
             </div>
             <div className="flex flex-col">
               <h1 className="text-xl font-bold leading-tight">Buffests</h1>
-              <p className="text-xs text-slate-400">Management System</p>
             </div>
           </div>
 
