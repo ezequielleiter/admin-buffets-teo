@@ -23,7 +23,6 @@ function DashboardContent() {
             </div>
             <div className="flex flex-col">
               <h1 className="text-xl font-bold leading-tight">Buffests</h1>
-              <p className="text-xs text-slate-400">Management System</p>
             </div>
           </div>
 
@@ -49,12 +48,12 @@ function DashboardContent() {
 
           {/* Footer Sidebar */}
           <div className="pt-6 border-t border-white/10">
-            <a className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 text-slate-300 transition-colors" href="#">
+            {/* <a className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 text-slate-300 transition-colors" href="#">
               <span className="material-symbols-outlined">settings</span>
               <span>Configuración</span>
-            </a>
+            </a> */}
           {/* User Info & Logout */}
-          <div className="mt-auto pt-6 border-t border-slate-600">
+          <div className="mt-auto pt-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
                 <span className="material-symbols-outlined text-white text-sm">person</span>
@@ -122,7 +121,7 @@ function DashboardContent() {
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             {/* Total Eventos */}
-            <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
+            {/* <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
               <div className="absolute top-0 left-0 h-full w-1 bg-primary"></div>
               <div className="flex justify-between items-start mb-4">
                 <div>
@@ -139,10 +138,10 @@ function DashboardContent() {
                 <span className="material-symbols-outlined text-base">trending_up</span>
                 <span>+20% vs ayer</span>
               </div>
-            </div>
+            </div> */}
 
             {/* Promociones Activas */}
-            <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
+            {/* <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
               <div className="absolute top-0 left-0 h-full w-1 bg-buffest-orange"></div>
               <div className="flex justify-between items-start mb-4">
                 <div>
@@ -159,9 +158,9 @@ function DashboardContent() {
                 <span className="material-symbols-outlined text-base">info</span>
                 <span>Terminan pronto: 2</span>
               </div>
-            </div>
+            </div> */}
 
-            {/* Inventario */}
+            {/* Inventario
             <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
               <div className="absolute top-0 left-0 h-full w-1 bg-primary"></div>
               <div className="flex justify-between items-start mb-4">
@@ -179,13 +178,13 @@ function DashboardContent() {
                 <span className="material-symbols-outlined text-base">trending_up</span>
                 <span>+2% vs semana anterior</span>
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Main Grid Layout */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left: Upcoming Events Table */}
-            <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
+            {/* <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
               <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
                 <h4 className="text-lg font-bold text-slate-800 dark:text-white">Próximos Eventos</h4>
                 <button className="text-primary hover:text-primary/80 font-medium text-sm transition-colors">
@@ -261,7 +260,7 @@ function DashboardContent() {
                   </tbody>
                 </table>
               </div>
-            </div>
+            </div> */}
 
             {/* Right: Quick Actions / Activity */}
             <div className="flex flex-col gap-6">
@@ -277,32 +276,14 @@ function DashboardContent() {
                     <span className="material-symbols-outlined text-2xl">star</span>
                     <span className="text-xs font-bold uppercase">Nueva Promo</span>
                   </button>
-                  <button className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors border border-slate-200 dark:border-slate-700">
+                  {/* <button className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors border border-slate-200 dark:border-slate-700">
                     <span className="material-symbols-outlined text-2xl">download</span>
                     <span className="text-xs font-bold uppercase">Reporte</span>
-                  </button>
-                  <button className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors border border-slate-200 dark:border-slate-700">
+                  </button> */}
+                  {/* <button className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors border border-slate-200 dark:border-slate-700">
                     <span className="material-symbols-outlined text-2xl">group</span>
                     <span className="text-xs font-bold uppercase">Personal</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Mini Map / Location Tracking */}
-              <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-3">Sedes Activas</h4>
-                <div className="aspect-video bg-slate-200 dark:bg-slate-800 rounded-lg relative overflow-hidden">
-                  <div 
-                    className="absolute inset-0 bg-cover bg-center opacity-70"
-                    style={{
-                      backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuCmL1pBxUmGmhO7wk9TntC7PFmjGQMsIOOk64MM680pKUUmk773id97P-u9h_OXqihNB5fLvzfgiF-d6Y29FNY61GQejeaPOays95yInnnusHueYljBgNwh915uqkN3NJbUMd3JLQ2iICYgfNrH8oQLe8zrStQ2DXCglPQTULPDzonmOgZxs1NdM9d-WCSoRJnukPK0m7NBcdXz5jxfEJ3sffLxvyStAx5skasjNpOw-Q2QEt7oCnIeeZt9yVx5QOUVHoAv5_m1oFNG')"
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-                  <div className="absolute bottom-3 left-3 flex items-center gap-2 text-white">
-                    <span className="material-symbols-outlined text-sm">location_on</span>
-                    <span className="text-xs font-medium">3 Sedes en operación hoy</span>
-                  </div>
+                  </button> */}
                 </div>
               </div>
             </div>
