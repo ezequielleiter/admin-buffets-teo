@@ -33,6 +33,7 @@ class TeoAuthClient {
   // Obtener token CSRF requerido por NextAuth
   async fetchCSRFToken(): Promise<string> {
     try {
+      console.log("AAA");
       console.log('🔑 Obteniendo token CSRF de:', `${this.baseUrl}/api/auth/csrf`);
       
       const response = await fetch(`${this.baseUrl}/api/auth/csrf`, {
@@ -69,7 +70,9 @@ class TeoAuthClient {
   // Login usando credentials provider
   async authenticate(email: string, password: string): Promise<AuthResult> {
     try {
+      console.log("AAA");
       const csrfToken = await this.fetchCSRFToken();
+      console.log("AAA", csrfToken);
       
       const loginResponse = await fetch(`${this.baseUrl}/api/auth/callback/credentials`, {
         method: 'POST',
@@ -104,7 +107,9 @@ class TeoAuthClient {
   // Obtener sesión actual
   async getCurrentSession(): Promise<SessionData | null> {
     try {
+      console.log("AAA");
       console.log('🔍 Intentando obtener sesión de:', `${this.baseUrl}/api/auth/session`);
+      console.log("AAA");
       
       const response = await fetch(`${this.baseUrl}/api/auth/session`, {
         credentials: 'include',
@@ -242,6 +247,7 @@ class TeoAuthClient {
   async checkBackendConnection(): Promise<boolean> {
     try {
       console.log('🔗 Verificando conexión con backend...');
+
       const response = await fetch(`${this.baseUrl}/api/auth/csrf`, {
         method: 'GET',
         headers: {
