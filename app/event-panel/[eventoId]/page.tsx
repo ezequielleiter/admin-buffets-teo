@@ -35,6 +35,7 @@ function EventPanelContent() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [metodoPago, setMetodoPago] = useState<'efectivo' | 'transferencia'>('efectivo');
 
   // Cargar evento específico
   useEffect(() => {
@@ -158,7 +159,7 @@ function EventPanelContent() {
       evento_id: evento._id!,
       productos: productosOrden,
       total: cartTotal,
-      forma_pago: 'efectivo' as const,
+      forma_pago: metodoPago,
       nota: `Venta realizada desde el panel de evento por ${user?.name}`,
       estado: 'pendiente' as const
     };
@@ -348,6 +349,34 @@ function EventPanelContent() {
 
           {/* Panel de checkout */}
           <div className="p-6 bg-gray-50 dark:bg-[#2d241d]/50 border-t border-[#e6e0db] space-y-4">
+            {/* Método de pago */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-bold text-[#181411] dark:text-white">Método de Pago</h3>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => setMetodoPago('efectivo')}
+                  className={`p-3 rounded-xl border-2 transition-all text-sm font-medium ${
+                    metodoPago === 'efectivo'
+                      ? 'border-highlight-blue bg-highlight-blue/10 text-highlight-blue'
+                      : 'border-[#e6e0db] text-[#8c735f] hover:border-highlight-blue/50'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[16px] mb-1">payments</span>
+                  <div>Efectivo</div>
+                </button>
+                <button
+                  onClick={() => setMetodoPago('transferencia')}
+                  className={`p-3 rounded-xl border-2 transition-all text-sm font-medium ${
+                    metodoPago === 'transferencia'
+                      ? 'border-highlight-blue bg-highlight-blue/10 text-highlight-blue'
+                      : 'border-[#e6e0db] text-[#8c735f] hover:border-highlight-blue/50'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[16px] mb-1">account_balance</span>
+                  <div>Transferencia</div>
+                </button>
+              </div>
+            </div>
             <div className="space-y-2">
               <div className="flex justify-between text-sm text-[#8c735f]">
                 <span>Subtotal</span>
