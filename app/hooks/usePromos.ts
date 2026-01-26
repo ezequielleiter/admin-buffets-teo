@@ -172,3 +172,8 @@ export function usePromos(filters: PromoFilters = {}): UsePromosResult {
     reload: loadPromos
   };
 }
+
+// Hook específico para obtener promos de un buffet específico (para el POS)
+export function useBuffetPromos(buffet_id: string) {
+  return usePromos({ buffet_id, limite: 100 }); // Sin paginación para el POS
+}

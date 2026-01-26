@@ -272,6 +272,13 @@ function EventosContent() {
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => window.open(`/event-panel/${evento._id}`, '_blank')}
+                            className="px-3 py-2 bg-primary text-white text-xs font-medium rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-1"
+                          >
+                            <span className="material-symbols-outlined text-sm">storefront</span>
+                            Ir al evento
+                          </button>
                           <button 
                             onClick={() => handleEditEvento(evento)}
                             className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"

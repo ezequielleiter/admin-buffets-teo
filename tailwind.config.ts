@@ -10,11 +10,12 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        primary: "#0d6dfd",
-        "buffest-dark": "#1b202d",
-        "buffest-orange": "#fc8d32",
+        primary: "#fc8c31",
+        "highlight-blue": "#0c6cfc",
+        "buffest-dark": "#1a140f",
+        "buffest-orange": "#fc8c31",
         "background-light": "#f6f5f2",
-        "background-dark": "#0f1723",
+        "background-dark": "#23180f",
         "buffests-text": "#1b202d",
         "buffests-orange": "#f97316",
       },

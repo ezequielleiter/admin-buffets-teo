@@ -172,3 +172,8 @@ export function useProductos(filters: ProductoFilters = {}): UseProductosResult 
     reload: loadProductos
   };
 }
+
+// Hook específico para obtener productos de un buffet específico (para el POS)
+export function useBuffetProductos(buffet_id: string) {
+  return useProductos({ buffet_id, limite: 100 }); // Sin paginación para el POS
+}
