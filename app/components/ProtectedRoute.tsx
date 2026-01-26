@@ -22,10 +22,10 @@ export default function ProtectedRoute({ children, fallback }: ProtectedRoutePro
   if (isLoading) {
     return (
       fallback || (
-        <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark">
+        <div className="min-h-screen flex items-center justify-center bg-surface-light">
           <div className="flex flex-col items-center gap-4">
-            <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-buffests-text dark:text-white font-medium">Verificando autenticación...</p>
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-text-primary font-medium">Verificando autenticación...</p>
           </div>
         </div>
       )

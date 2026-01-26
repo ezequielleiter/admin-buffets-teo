@@ -100,23 +100,23 @@ export default function PromoForm({ onSubmit, onCancel, isSubmitting = false, pr
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">
+      <div className="bg-white p-6 rounded-xl shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <h2 className="text-2xl font-bold text-text-primary mb-6">
           {promo ? 'Editar Promoción' : 'Crear Nueva Promoción'}
         </h2>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Selector de Buffet */}
           <div>
-            <label htmlFor="buffet_id" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            <label htmlFor="buffet_id" className="block text-sm font-medium text-text-primary mb-2">
               Buffet *
             </label>
             <select
               id="buffet_id"
               value={formData.buffet_id}
               onChange={(e) => handleBuffetChange(e.target.value)}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-slate-800 text-slate-900 dark:text-white ${
-                errors.buffet_id ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white text-text-primary ${
+                errors.buffet_id ? 'border-red-500' : 'border-gray-300'
               }`}
               disabled={buffetsLoading}
             >
@@ -136,7 +136,7 @@ export default function PromoForm({ onSubmit, onCancel, isSubmitting = false, pr
 
           {/* Nombre */}
           <div>
-            <label htmlFor="nombre" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            <label htmlFor="nombre" className="block text-sm font-medium text-text-primary mb-2">
               Nombre de la Promoción *
             </label>
             <input
@@ -144,8 +144,8 @@ export default function PromoForm({ onSubmit, onCancel, isSubmitting = false, pr
               id="nombre"
               value={formData.nombre}
               onChange={(e) => handleInputChange('nombre', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-slate-800 text-slate-900 dark:text-white ${
-                errors.nombre ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white text-text-primary ${
+                errors.nombre ? 'border-red-500' : 'border-gray-300'
               }`}
               placeholder="Ej: Combo Familiar"
             />
@@ -157,32 +157,32 @@ export default function PromoForm({ onSubmit, onCancel, isSubmitting = false, pr
           {/* Selección de Productos */}
           {formData.buffet_id && (
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-text-primary mb-2">
                 Productos de la Promoción * (mínimo 2)
               </label>
-              <div className="border border-slate-300 dark:border-slate-600 rounded-lg p-4 max-h-48 overflow-y-auto">
+              <div className="border border-gray-300 rounded-lg p-4 max-h-48 overflow-y-auto">
                 {productosLoading ? (
-                  <p className="text-slate-500 dark:text-slate-400">Cargando productos...</p>
+                  <p className="text-text-secondary">Cargando productos...</p>
                 ) : productos.length === 0 ? (
-                  <p className="text-slate-500 dark:text-slate-400">No hay productos disponibles para este buffet</p>
+                  <p className="text-text-secondary">No hay productos disponibles para este buffet</p>
                 ) : (
                   <div className="space-y-2">
                     {productos.map((producto) => (
                       <label
                         key={producto._id}
-                        className="flex items-center gap-3 p-2 rounded hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
+                        className="flex items-center gap-3 p-2 rounded hover:bg-gray-50 cursor-pointer"
                       >
                         <input
                           type="checkbox"
                           checked={formData.productos.includes(producto._id!)}
                           onChange={() => handleProductoToggle(producto._id!)}
-                          className="w-4 h-4 text-primary bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-primary"
+                          className="w-4 h-4 text-primary bg-white border-gray-300 rounded focus:ring-primary"
                         />
                         <div className="flex-1">
-                          <span className="text-slate-900 dark:text-white font-medium">
+                          <span className="text-text-primary font-medium">
                             {producto.nombre}
                           </span>
-                          <span className="text-slate-500 dark:text-slate-400 text-sm ml-2">
+                          <span className="text-text-secondary text-sm ml-2">
                             ${producto.valor.toFixed(2)}
                           </span>
                         </div>
@@ -199,19 +199,19 @@ export default function PromoForm({ onSubmit, onCancel, isSubmitting = false, pr
 
           {/* Información de precios */}
           {formData.productos.length > 0 && (
-            <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-lg">
-              <h3 className="font-medium text-slate-900 dark:text-white mb-2">Información de Precios</h3>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h3 className="font-medium text-text-primary mb-2">Información de Precios</h3>
               <div className="space-y-1 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-slate-600 dark:text-slate-400">Precio individual total:</span>
-                  <span className="text-slate-900 dark:text-white">${precioSugerido.toFixed(2)}</span>
+                  <span className="text-text-secondary">Precio individual total:</span>
+                  <span className="text-text-primary">${precioSugerido.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-600 dark:text-slate-400">Descuento sugerido (15%):</span>
+                  <span className="text-text-secondary">Descuento sugerido (15%):</span>
                   <span className="text-green-600">${descuentoSugerido.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between font-medium">
-                  <span className="text-slate-900 dark:text-white">Precio promocional sugerido:</span>
+                  <span className="text-text-primary">Precio promocional sugerido:</span>
                   <span className="text-primary">${precioPromoSugerido.toFixed(2)}</span>
                 </div>
               </div>
@@ -220,18 +220,18 @@ export default function PromoForm({ onSubmit, onCancel, isSubmitting = false, pr
 
           {/* Valor de la Promoción */}
           <div>
-            <label htmlFor="valor" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            <label htmlFor="valor" className="block text-sm font-medium text-text-primary mb-2">
               Precio de la Promoción *
             </label>
             <div className="relative">
-              <span className="absolute left-3 top-2.5 text-slate-500 dark:text-slate-400">$</span>
+              <span className="absolute left-3 top-2.5 text-text-secondary">$</span>
               <input
                 type="number"
                 id="valor"
                 value={formData.valor || ''}
                 onChange={(e) => handleInputChange('valor', parseFloat(e.target.value) || 0)}
-                className={`w-full pl-8 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-slate-800 text-slate-900 dark:text-white ${
-                  errors.valor ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'
+                className={`w-full pl-8 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white text-text-primary ${
+                  errors.valor ? 'border-red-500' : 'border-gray-300'
                 }`}
                 placeholder={precioPromoSugerido > 0 ? precioPromoSugerido.toFixed(2) : '0.00'}
                 step="0.01"
@@ -257,7 +257,7 @@ export default function PromoForm({ onSubmit, onCancel, isSubmitting = false, pr
             <button
               type="button"
               onClick={onCancel}
-              className="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+              className="flex-1 px-4 py-2 border border-gray-300 text-text-secondary rounded-lg hover:bg-gray-50 transition-colors"
               disabled={isSubmitting}
             >
               Cancelar
@@ -265,7 +265,7 @@ export default function PromoForm({ onSubmit, onCancel, isSubmitting = false, pr
             <button
               type="submit"
               disabled={isSubmitting || buffetsLoading}
-              className="flex-1 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="flex-1 bg-primary text-white px-4 py-2 rounded-lg hover:bg-accent-blue transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <>

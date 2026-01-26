@@ -10,14 +10,27 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        primary: "#fc8c31",
-        "highlight-blue": "#0c6cfc",
-        "buffest-dark": "#1a140f",
-        "buffest-orange": "#fc8c31",
+        // Colores principales (formas grandes)
+        primary: "#72a0fd",
+        secondary: "#93b6fd",
+        "surface-dark": "#1b202d",
+        "surface-light": "#f6f5f2",
+        
+        // Colores de acento (formas medianas/pequeñas)
+        "accent-blue": "#0c5cfc",
+        "accent-orange": "#fc8d32",
+        "accent-orange-intense": "#fc7100",
+        
+        // Colores de texto
+        "text-primary": "#1b202d",
+        "text-secondary": "#6b7280",
+        
+        // Compatibilidad con nombres antiguos
+        "buffest-dark": "#1b202d",
+        "buffest-orange": "#fc8d32",
         "background-light": "#f6f5f2",
-        "background-dark": "#23180f",
+        "background-dark": "#1b202d",
         "buffests-text": "#1b202d",
-        "buffests-orange": "#f97316",
       },
       fontFamily: {
         display: ["Be Vietnam Pro", "sans-serif"],

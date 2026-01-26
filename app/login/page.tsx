@@ -61,11 +61,11 @@ export default function LoginPage() {
   return (
     <>
       <AuthDebugPanel />
-      <div className="min-h-screen flex flex-col bg-background-light dark:bg-background-dark font-display">
+      <div className="min-h-screen flex flex-col bg-surface-light font-display">
         {/* Top Navigation Bar */}
-        <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-[#dadfe7] dark:border-slate-800 bg-white dark:bg-slate-900 px-10 py-3">
-          <div className="flex items-center gap-4 text-buffests-text dark:text-white">
-            <h2 className="text-buffests-text dark:text-white text-xl font-bold leading-tight tracking-[-0.015em]">
+        <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200 bg-white px-10 py-3">
+          <div className="flex items-center gap-4 text-text-primary">
+            <h2 className="text-text-primary text-xl font-bold leading-tight tracking-[-0.015em]">
               Buffests
             </h2>
           </div>
@@ -75,12 +75,12 @@ export default function LoginPage() {
         <main className="flex-1 flex items-center justify-center p-6">
           <div className="max-w-[440px] w-full">
             {/* Card Container */}
-            <div className="flex flex-col items-stretch justify-start rounded-xl shadow-lg bg-white dark:bg-slate-900 overflow-hidden">
+            <div className="flex flex-col items-stretch justify-start rounded-xl shadow-lg bg-white overflow-hidden">
 
               {/* Form Content */}
               <div className="flex w-full grow flex-col items-stretch justify-center gap-6 py-8 px-8">
                 <div className="text-center mb-2">
-                  <p className="text-buffests-text dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">
+                  <p className="text-text-primary text-lg font-bold leading-tight tracking-[-0.015em]">
                     Buffests Login
                   </p>
                 </div>
@@ -88,23 +88,23 @@ export default function LoginPage() {
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                   {/* Error Message */}
                   {error && (
-                    <div className="w-full p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-                      <p className="text-red-800 dark:text-red-300 text-sm font-medium">{error}</p>
+                    <div className="w-full p-3 rounded-lg bg-red-50 border border-red-200">
+                      <p className="text-red-800 text-sm font-medium">{error}</p>
                     </div>
                   )}
                   
                   {/* Email Field */}
                   <div className="flex flex-col w-full">
                     <label className="flex flex-col w-full">
-                      <p className="text-buffests-text dark:text-slate-200 text-sm font-semibold leading-normal pb-2">
+                      <p className="text-text-primary text-sm font-semibold leading-normal pb-2">
                         Email
                       </p>
                       <div className="relative">
-                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#5e718d] text-xl">
+                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary text-xl">
                           email
                         </span>
                         <input
-                          className="form-input flex w-full resize-none overflow-hidden rounded-lg text-buffests-text dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/20 border border-[#dadfe7] dark:border-slate-700 bg-white dark:bg-slate-800 focus:border-primary h-12 placeholder:text-[#5e718d] pl-10 pr-4 text-base font-normal leading-normal transition-colors"
+                          className="form-input flex w-full resize-none overflow-hidden rounded-lg text-text-primary focus:outline-0 focus:ring-2 focus:ring-primary/20 border border-gray-300 bg-white focus:border-primary h-12 placeholder:text-text-secondary pl-10 pr-4 text-base font-normal leading-normal transition-colors"
                           placeholder="Ingresa tu email"
                           type="email"
                           value={email}
@@ -119,15 +119,15 @@ export default function LoginPage() {
                   {/* Password Field */}
                   <div className="flex flex-col w-full">
                     <label className="flex flex-col w-full">
-                      <p className="text-buffests-text dark:text-slate-200 text-sm font-semibold leading-normal pb-2">
+                      <p className="text-text-primary text-sm font-semibold leading-normal pb-2">
                         Contraseña
                       </p>
                       <div className="relative">
-                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#5e718d] text-xl">
+                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary text-xl">
                           lock
                         </span>
                         <input
-                          className="form-input flex w-full resize-none overflow-hidden rounded-lg text-buffests-text dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/20 border border-[#dadfe7] dark:border-slate-700 bg-white dark:bg-slate-800 focus:border-primary h-12 placeholder:text-[#5e718d] pl-10 pr-4 text-base font-normal leading-normal transition-colors"
+                          className="form-input flex w-full resize-none overflow-hidden rounded-lg text-text-primary focus:outline-0 focus:ring-2 focus:ring-primary/20 border border-gray-300 bg-white focus:border-primary h-12 placeholder:text-text-secondary pl-10 pr-4 text-base font-normal leading-normal transition-colors"
                           placeholder="Ingresa tu contraseña"
                           type="password"
                           value={password}
@@ -142,7 +142,7 @@ export default function LoginPage() {
                   {/* Login Button */}
                   <div className="flex pt-4">
                     <button
-                      className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white text-base font-bold leading-normal tracking-[0.015em] transition-all shadow-md active:scale-[0.98] disabled:active:scale-100"
+                      className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary hover:bg-accent-blue disabled:bg-secondary disabled:cursor-not-allowed text-white text-base font-bold leading-normal tracking-[0.015em] transition-all shadow-md active:scale-[0.98] disabled:active:scale-100"
                       type="submit"
                       disabled={isLoading}
                     >

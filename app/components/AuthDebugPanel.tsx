@@ -50,15 +50,15 @@ export default function AuthDebugPanel() {
       {/* Toggle button */}
       <button
         onClick={() => setIsVisible(!isVisible)}
-        className="fixed top-4 right-4 z-50 bg-gray-800 text-white px-3 py-1 rounded text-xs font-mono"
+        className="fixed top-4 right-4 z-50 bg-surface-dark text-surface-light px-3 py-1 rounded text-xs font-mono hover:bg-primary transition-colors"
       >
         🐛 Debug
       </button>
 
       {/* Debug panel */}
       {isVisible && (
-        <div className="fixed top-16 right-4 z-50 bg-black text-green-400 p-4 rounded-lg shadow-xl max-w-md text-xs font-mono">
-          <div className="mb-2 text-yellow-400 font-bold">Auth Debug Panel</div>
+        <div className="fixed top-16 right-4 z-50 bg-surface-dark text-green-400 p-4 rounded-lg shadow-xl max-w-md text-xs font-mono">
+          <div className="mb-2 text-accent-orange font-bold">Auth Debug Panel</div>
           
           <div className="mb-2">
             <span className="text-blue-400">Backend Status:</span>
@@ -72,7 +72,7 @@ export default function AuthDebugPanel() {
             <div className="space-y-1">
               <div>
                 <span className="text-blue-400">Base URL:</span>
-                <span className="ml-2 text-white">{debugInfo.baseUrl}</span>
+                <span className="ml-2 text-surface-light">{debugInfo.baseUrl}</span>
               </div>
               <div>
                 <span className="text-blue-400">Has Session:</span>
@@ -95,7 +95,7 @@ export default function AuthDebugPanel() {
               {debugInfo.currentUser && (
                 <div>
                   <span className="text-blue-400">User:</span>
-                  <span className="ml-2 text-white">{debugInfo.currentUser.email}</span>
+                  <span className="ml-2 text-surface-light">{debugInfo.currentUser.email}</span>
                 </div>
               )}
             </div>

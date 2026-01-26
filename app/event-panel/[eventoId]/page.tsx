@@ -181,7 +181,7 @@ function EventPanelContent() {
   if (loadingEvento) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="w-8 h-8 border-2 border-highlight-blue border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -194,7 +194,7 @@ function EventPanelContent() {
           <p>No se pudo cargar la información del evento</p>
           <button
             onClick={() => window.close()}
-            className="mt-4 px-4 py-2 bg-gray-600 text-white rounded-lg"
+            className="mt-4 px-4 py-2 bg-accent-orange text-white rounded-lg hover:bg-accent-orange-intense transition-colors"
           >
             Cerrar
           </button>
@@ -243,14 +243,14 @@ function EventPanelContent() {
         {/* Panel de productos */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Barra de búsqueda */}
-          <div className="p-6 pb-2 bg-background-light dark:bg-background-dark">
+          <div className="p-6 pb-2 bg-surface-light">
             <div className="flex items-center justify-between">
               <div className="relative w-full max-w-md">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-[#8c735f]">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-text-secondary">
                   <span className="material-symbols-outlined">search</span>
                 </span>
                 <input 
-                  className="block w-full pl-10 pr-3 py-2 border-none rounded-xl bg-white dark:bg-[#2d241d] focus:ring-2 focus:ring-highlight-blue text-sm" 
+                  className="block w-full pl-10 pr-3 py-2 border-none rounded-xl bg-white focus:ring-2 focus:ring-primary text-sm" 
                   placeholder="Buscar productos por nombre o código..." 
                   type="text"
                   value={searchQuery}
@@ -264,15 +264,15 @@ function EventPanelContent() {
           <div className="flex-1 overflow-y-auto p-6">
             {productosLoading || promosLoading ? (
               <div className="flex items-center justify-center py-12">
-                <div className="w-8 h-8 border-2 border-highlight-blue border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
               </div>
             ) : filteredItems.length === 0 ? (
               <div className="text-center py-12">
-                <span className="material-symbols-outlined text-6xl text-[#8c735f] mb-4">inventory</span>
-                <p className="text-[#8c735f] text-lg mb-2">
+                <span className="material-symbols-outlined text-6xl text-text-secondary mb-4">inventory</span>
+                <p className="text-text-secondary text-lg mb-2">
                   {searchQuery ? 'No se encontraron productos' : 'No hay productos disponibles'}
                 </p>
-                <p className="text-sm text-[#8c735f]">
+                <p className="text-sm text-text-secondary">
                   {searchQuery ? 'Intenta con otra búsqueda' : 'Agrega productos al buffet desde el panel de administración'}
                 </p>
               </div>
@@ -282,21 +282,21 @@ function EventPanelContent() {
                   <div 
                     key={`${item.type}-${item._id}`}
                     onClick={() => addToCart(item, item.type)}
-                    className="group bg-white dark:bg-[#2d241d] rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer border-2 border-transparent hover:border-highlight-blue/30"
+                    className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer border-2 border-transparent hover:border-primary/30"
                   >
                     <div className="h-40 bg-center bg-no-repeat bg-cover relative" style={{backgroundImage: `url('https://images.unsplash.com/photo-${item.type === 'producto' ? '1567620905586-95b68e8bf377' : '1567620905778-4d6c1c7a31b1'}?w=400&h=300&fit=crop')`}}>
-                      <span className="absolute top-2 right-2 bg-highlight-blue text-white text-xs font-bold px-2 py-1 rounded-full">
+                      <span className="absolute top-2 right-2 bg-primary text-white text-xs font-bold px-2 py-1 rounded-full">
                         ${item.valor.toFixed(2)}
                       </span>
                       {item.type === 'promo' && (
-                        <span className="absolute top-2 left-2 bg-green-600 text-white text-xs font-bold px-2 py-1 rounded-full">
+                        <span className="absolute top-2 left-2 bg-accent-orange text-white text-xs font-bold px-2 py-1 rounded-full">
                           PROMO
                         </span>
                       )}
                     </div>
                     <div className="p-4">
-                      <h3 className="text-[#181411] dark:text-white font-bold text-sm mb-1">{item.nombre}</h3>
-                      <p className="text-[#8c735f] text-xs">{'descripcion' in item ? item.descripcion : 'Promoción especial'}</p>
+                      <h3 className="text-text-primary font-bold text-sm mb-1">{item.nombre}</h3>
+                      <p className="text-text-secondary text-xs">{'descripcion' in item ? item.descripcion : 'Promoción especial'}</p>
                     </div>
                   </div>
                 ))}

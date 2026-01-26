@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   Evento, 
   EventoFilters, 
@@ -32,7 +32,10 @@ export function useEventos(filters: EventoFilters = {}): UseEventosResult {
     error: null
   });
 
-  const buildQuery = (params: Record<string, any>): string => {
+  // Memoizar filters para evitar recreación en cada render
+  const memoizedFilters = useMemo(() => filters, [JSON.stringify(filters)]);
+
+  const buildQuery = useCallback((params: Record<string, any>): string => {
     const query = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== '') {
@@ -40,13 +43,13 @@ export function useEventos(filters: EventoFilters = {}): UseEventosResult {
       }
     });
     return query.toString() ? `?${query.toString()}` : '';
-  };
+  }, []);
 
-  const loadEventos = async () => {
+  const loadEventos = useCallback(async () => {
     try {
       setData(prev => ({ ...prev, loading: true, error: null }));
       
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin-buffets/eventos${buildQuery(filters)}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin-buffets/eventos${buildQuery(memoizedFilters)}`, {
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
@@ -73,7 +76,7 @@ export function useEventos(filters: EventoFilters = {}): UseEventosResult {
         error: error instanceof Error ? error.message : 'Error desconocido'
       }));
     }
-  };
+  }, [memoizedFilters, buildQuery]);
 
   const createEvento = async (eventoData: CreateEventoData): Promise<Evento | null> => {
     try {
@@ -162,7 +165,7 @@ export function useEventos(filters: EventoFilters = {}): UseEventosResult {
 
   useEffect(() => {
     loadEventos();
-  }, [JSON.stringify(filters)]);
+  }, [loadEventos]);
 
   return {
     ...data,

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { 
   Buffet, 
   BuffetFilters, 
@@ -29,7 +29,10 @@ export function useBuffets(filters: BuffetFilters = {}): UseBuffetsResult {
     error: null
   });
 
-  const buildQuery = (params: BuffetFilters, user: { id: string; role?: string } | null): string => {
+  // Memoizar filters para evitar recreación en cada render
+  const memoizedFilters = useMemo(() => filters, [JSON.stringify(filters)]);
+
+  const buildQuery = useCallback((params: BuffetFilters, user: { id: string; role?: string } | null): string => {
     const query = new URLSearchParams();
     
     // Aplicar filtros automáticos según el rol del usuario
@@ -47,7 +50,7 @@ export function useBuffets(filters: BuffetFilters = {}): UseBuffetsResult {
     console.log( `?${query.toString()}`);
     
     return query.toString() ? `?${query.toString()}` : '';
-  };
+  }, []);
 
   const loadBuffets = useCallback(async () => {
     if (!user) return; // No cargar hasta que tengamos la información del usuario
@@ -56,7 +59,7 @@ export function useBuffets(filters: BuffetFilters = {}): UseBuffetsResult {
     try {
       setData(prev => ({ ...prev, loading: true, error: null }));
       
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin-buffets/buffets${buildQuery(filters, user)}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin-buffets/buffets${buildQuery(memoizedFilters, user)}`, {
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
@@ -83,7 +86,7 @@ export function useBuffets(filters: BuffetFilters = {}): UseBuffetsResult {
         error: error instanceof Error ? error.message : 'Error desconocido'
       }));
     }
-  }, [filters, user]);
+  }, [memoizedFilters, user, buildQuery]);
 
   const createBuffet = async (buffetData: CreateBuffetData): Promise<Buffet | null> => {
     try {

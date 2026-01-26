@@ -75,15 +75,15 @@ export default function EventoForm({ onSubmit, onCancel, isSubmitting = false, e
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-xl max-w-md w-full mx-4">
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">
+      <div className="bg-white p-6 rounded-xl shadow-xl max-w-md w-full mx-4">
+        <h2 className="text-2xl font-bold text-text-primary mb-6">
           {evento ? 'Editar Evento' : 'Crear Nuevo Evento'}
         </h2>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Nombre del Evento */}
           <div>
-            <label htmlFor="nombre" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            <label htmlFor="nombre" className="block text-sm font-medium text-text-primary mb-2">
               Nombre del Evento *
             </label>
             <input
@@ -91,8 +91,8 @@ export default function EventoForm({ onSubmit, onCancel, isSubmitting = false, e
               id="nombre"
               value={formData.nombre}
               onChange={(e) => handleInputChange('nombre', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-slate-800 text-slate-900 dark:text-white ${
-                errors.nombre ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white text-text-primary ${
+                errors.nombre ? 'border-red-500' : 'border-gray-300'
               }`}
               placeholder="Ej: Boda familiar, Evento corporativo..."
             />
@@ -103,15 +103,15 @@ export default function EventoForm({ onSubmit, onCancel, isSubmitting = false, e
 
           {/* Selector de Buffet */}
           <div>
-            <label htmlFor="buffet_id" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            <label htmlFor="buffet_id" className="block text-sm font-medium text-text-primary mb-2">
               Buffet *
             </label>
             <select
               id="buffet_id"
               value={formData.buffet_id}
               onChange={(e) => handleInputChange('buffet_id', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-slate-800 text-slate-900 dark:text-white ${
-                errors.buffet_id ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white text-text-primary ${
+                errors.buffet_id ? 'border-red-500' : 'border-gray-300'
               }`}
               disabled={buffetsLoading}
             >
@@ -131,7 +131,7 @@ export default function EventoForm({ onSubmit, onCancel, isSubmitting = false, e
 
           {/* Fecha y Hora */}
           <div>
-            <label htmlFor="fecha" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            <label htmlFor="fecha" className="block text-sm font-medium text-text-primary mb-2">
               Fecha y Hora del Evento *
             </label>
             <input
@@ -139,8 +139,8 @@ export default function EventoForm({ onSubmit, onCancel, isSubmitting = false, e
               id="fecha"
               value={formatDateTimeLocal(formData.fecha)}
               onChange={(e) => handleDateChange(e.target.value)}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-slate-800 text-slate-900 dark:text-white ${
-                errors.fecha ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white text-text-primary ${
+                errors.fecha ? 'border-red-500' : 'border-gray-300'
               }`}
               min={new Date().toISOString().slice(0, 16)} // No permitir fechas pasadas
             />
@@ -154,7 +154,7 @@ export default function EventoForm({ onSubmit, onCancel, isSubmitting = false, e
             <button
               type="button"
               onClick={onCancel}
-              className="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+              className="flex-1 px-4 py-2 border border-gray-300 text-text-secondary rounded-lg hover:bg-gray-50 transition-colors"
               disabled={isSubmitting}
             >
               Cancelar
@@ -162,7 +162,7 @@ export default function EventoForm({ onSubmit, onCancel, isSubmitting = false, e
             <button
               type="submit"
               disabled={isSubmitting || buffetsLoading}
-              className="flex-1 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="flex-1 bg-primary text-white px-4 py-2 rounded-lg hover:bg-accent-blue transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <>

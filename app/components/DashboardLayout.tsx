@@ -9,9 +9,9 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children, title = "Dashboard" }: DashboardLayoutProps) {
   return (
-    <div className="flex h-screen overflow-hidden bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100">
+    <div className="flex h-screen overflow-hidden bg-surface-light text-text-primary">
       {/* Sidebar Navigation */}
-      <aside className="w-64 bg-buffest-dark text-white flex flex-col shrink-0">
+      <aside className="w-64 bg-surface-dark text-surface-light flex flex-col shrink-0">
         <div className="p-6 flex flex-col h-full">
           {/* Brand / Logo */}
           <div className="flex items-center gap-3 mb-10">
@@ -29,15 +29,15 @@ export default function DashboardLayout({ children, title = "Dashboard" }: Dashb
               <span className="material-symbols-outlined">dashboard</span>
               <span>Dashboard</span>
             </a>
-            <a className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 text-slate-300 transition-colors" href="#">
+            <a className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-300 hover:text-white transition-colors" href="/dashboard/eventos">
               <span className="material-symbols-outlined">calendar_today</span>
               <span>Eventos</span>
             </a>
-            <a className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 text-slate-300 transition-colors" href="#">
+            <a className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-300 hover:text-white transition-colors" href="/dashboard/productos">
               <span className="material-symbols-outlined">inventory_2</span>
               <span>Productos</span>
             </a>
-            <a className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 text-slate-300 transition-colors" href="#">
+            <a className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-300 hover:text-white transition-colors" href="/dashboard/promos">
               <span className="material-symbols-outlined">sell</span>
               <span>Promos</span>
             </a>
@@ -45,11 +45,11 @@ export default function DashboardLayout({ children, title = "Dashboard" }: Dashb
 
           {/* Footer Sidebar */}
           <div className="pt-6 border-t border-white/10">
-            <a className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 text-slate-300 transition-colors" href="#">
+            <a className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-300 hover:text-white transition-colors" href="#">
               <span className="material-symbols-outlined">settings</span>
               <span>Configuración</span>
             </a>
-            <a className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 text-slate-300 transition-colors" href="/login">
+            <a className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-300 hover:text-white transition-colors" href="/login">
               <span className="material-symbols-outlined">logout</span>
               <span>Salir</span>
             </a>
@@ -60,30 +60,30 @@ export default function DashboardLayout({ children, title = "Dashboard" }: Dashb
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col overflow-y-auto">
         {/* Top Navigation Bar */}
-        <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark flex items-center justify-between px-8 sticky top-0 z-10">
+        <header className="h-16 border-b border-gray-200 bg-white flex items-center justify-between px-8 sticky top-0 z-10">
           <div className="flex items-center gap-4">
-            <h2 className="text-lg font-bold text-slate-800 dark:text-white">{title}</h2>
-            <div className="hidden md:flex items-center bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-transparent focus-within:border-primary">
-              <span className="material-symbols-outlined text-slate-400 text-xl">search</span>
+            <h2 className="text-lg font-bold text-text-primary">{title}</h2>
+            <div className="hidden md:flex items-center bg-gray-100 px-3 py-1.5 rounded-lg border border-transparent focus-within:border-primary">
+              <span className="material-symbols-outlined text-text-secondary text-xl">search</span>
               <input 
-                className="bg-transparent border-none focus:ring-0 text-sm w-64 placeholder:text-slate-500 focus:outline-none" 
+                className="bg-transparent border-none focus:ring-0 text-sm w-64 placeholder:text-text-secondary focus:outline-none" 
                 placeholder="Buscar..." 
                 type="text"
               />
             </div>
           </div>
           <div className="flex items-center gap-6">
-            <button className="relative text-slate-500 hover:text-primary transition-colors">
+            <button className="relative text-text-secondary hover:text-primary transition-colors">
               <span className="material-symbols-outlined">notifications</span>
-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-buffest-orange rounded-full"></span>
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-accent-orange rounded-full"></span>
             </button>
-            <div className="flex items-center gap-3 pl-6 border-l border-slate-200 dark:border-slate-700">
+            <div className="flex items-center gap-3 pl-6 border-l border-gray-200">
               <div className="text-right hidden sm:block">
-                <p className="text-sm font-bold text-slate-800 dark:text-white">Admin Buffests</p>
-                <p className="text-xs text-slate-500">Super Administrador</p>
+                <p className="text-sm font-bold text-text-primary">Admin Buffests</p>
+                <p className="text-xs text-text-secondary">Super Administrador</p>
               </div>
               <div 
-                className="size-10 rounded-full bg-slate-200 dark:bg-slate-700 bg-cover bg-center ring-2 ring-white dark:ring-slate-800" 
+                className="size-10 rounded-full bg-gray-200 bg-cover bg-center ring-2 ring-white" 
                 style={{
                   backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuCJpLaMyvzn1JdIbXs_63OJWLI3KePwMIiWYlxTesDz9HYAdp_9zzceFMSwISmT56JPI8WEf-jU8j47-mgxY5B8j6FWTAFjLuqboRwipK83kikhltwy_NON-VAKTyQ0MrgQuubollGAD7vir2osoH2m22ydsKz-LJgRRxNQ6ZGSMcpWmShY_hakMwmBwWWnx4hmqEsiKPJBgSCQnfmWHo1Zo5MVATjYlM7i-BWRDb5ZR7KGE5hmxvVuv4T8kMXWdwDQed3qkDViSo6D')"
                 }}
