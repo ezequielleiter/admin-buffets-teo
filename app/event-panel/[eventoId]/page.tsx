@@ -203,65 +203,40 @@ function EventPanelContent() {
     );
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-AR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
+
 
   return (
-    <div className="bg-background-light dark:bg-background-dark font-display text-[#181411] dark:text-white min-h-screen">
-      {/* Header */}
-      <header className="sticky top-0 z-50 flex items-center justify-between border-b border-solid border-[#e6e0db] bg-white dark:bg-[#1a140f] px-10 py-3">
-        <div className="flex items-center gap-8">
-          <div className="h-8 w-px bg-[#e6e0db]"></div>
-          <div>
-            <p className="text-sm text-[#8c735f] uppercase tracking-wider font-semibold">Evento Actual</p>
-            <h1 className="text-lg font-bold text-[#181411] dark:text-white">{evento.nombre}</h1>
-            <p className="text-sm text-[#8c735f]">{formatDate(evento.fecha.toString())} • {evento.buffet?.nombre}</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={() => window.close()}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-[#e6e0db] hover:bg-gray-50 transition-colors text-highlight-blue font-bold text-sm"
-          >
-            <span className="material-symbols-outlined text-[20px]">dashboard</span>
-            Volver al Dashboard
-          </button>
-          <div className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-primary bg-gray-300 flex items-center justify-center">
-            <span className="material-symbols-outlined text-white text-sm">person</span>
-          </div>
-        </div>
-      </header>
-
-      <main className="flex h-[calc(100vh-65px)] overflow-hidden">
+    <div className="bg-surface-light font-display text-text-primary h-screen overflow-hidden">
+      <main className="flex flex-col sm:flex-row h-full overflow-hidden">
         {/* Panel de productos */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Barra de búsqueda */}
-          <div className="p-6 pb-2 bg-surface-light">
-            <div className="flex items-center justify-between">
-              <div className="relative w-full max-w-md">
+          {/* Barra de búsqueda con botón de salir */}
+          <div className="p-4 sm:p-6 bg-white border-b border-gray-200">
+            <div className="flex items-center gap-3">
+              <div className="relative flex-1 max-w-2xl">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-text-secondary">
                   <span className="material-symbols-outlined">search</span>
                 </span>
                 <input 
-                  className="block w-full pl-10 pr-3 py-2 border-none rounded-xl bg-white focus:ring-2 focus:ring-primary text-sm" 
-                  placeholder="Buscar productos por nombre o código..." 
+                  className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl bg-white focus:ring-2 focus:ring-primary focus:border-primary text-sm sm:text-base" 
+                  placeholder="Buscar productos..." 
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
+              <button 
+                onClick={() => window.close()}
+                className="flex items-center justify-center p-3 rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors text-text-secondary bg-white"
+                title="Volver al Dashboard"
+              >
+                <span className="material-symbols-outlined text-[20px] sm:text-[24px]">close</span>
+              </button>
             </div>
           </div>
 
           {/* Grid de productos */}
-          <div className="flex-1 overflow-y-auto p-6">
+          <div className="flex-1 overflow-y-auto p-3 sm:p-6">
             {productosLoading || promosLoading ? (
               <div className="flex items-center justify-center py-12">
                 <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
@@ -277,26 +252,28 @@ function EventPanelContent() {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
                 {filteredItems.map((item) => (
                   <div 
                     key={`${item.type}-${item._id}`}
                     onClick={() => addToCart(item, item.type)}
-                    className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer border-2 border-transparent hover:border-primary/30"
+                    className="bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer border border-gray-200 hover:shadow-md active:scale-95 transition-all"
                   >
-                    <div className="h-40 bg-center bg-no-repeat bg-cover relative" style={{backgroundImage: `url('https://images.unsplash.com/photo-${item.type === 'producto' ? '1567620905586-95b68e8bf377' : '1567620905778-4d6c1c7a31b1'}?w=400&h=300&fit=crop')`}}>
-                      <span className="absolute top-2 right-2 bg-primary text-white text-xs font-bold px-2 py-1 rounded-full">
-                        ${item.valor.toFixed(2)}
+                    <div className="h-20 sm:h-24 bg-center bg-no-repeat bg-cover relative" style={{backgroundImage: `url('https://images.unsplash.com/photo-${item.type === 'producto' ? '1567620905586-95b68e8bf377' : '1567620905778-4d6c1c7a31b1'}?w=400&h=300&fit=crop')`}}>
+                      <span className="absolute top-1 right-1 bg-primary text-white text-xs font-bold px-2 py-1 rounded-lg shadow-sm">
+                        ${item.valor.toFixed(0)}
                       </span>
                       {item.type === 'promo' && (
-                        <span className="absolute top-2 left-2 bg-accent-orange text-white text-xs font-bold px-2 py-1 rounded-full">
+                        <span className="absolute top-1 left-1 bg-accent-orange text-white text-xs font-bold px-2 py-1 rounded-lg shadow-sm">
                           PROMO
                         </span>
                       )}
                     </div>
-                    <div className="p-4">
-                      <h3 className="text-text-primary font-bold text-sm mb-1">{item.nombre}</h3>
-                      <p className="text-text-secondary text-xs">{'descripcion' in item ? item.descripcion : 'Promoción especial'}</p>
+                    <div className="p-3">
+                      <h3 className="text-text-primary font-bold text-sm mb-1 truncate">{item.nombre}</h3>
+                      <p className="text-text-secondary text-xs leading-tight line-clamp-2">
+                        {'descripcion' in item && item.descripcion ? item.descripcion : 'Promoción especial'}
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -305,42 +282,55 @@ function EventPanelContent() {
           </div>
         </div>
 
-        {/* Panel del carrito */}
-        <aside className="w-[400px] flex flex-col bg-white dark:bg-[#1a140f] border-l border-[#e6e0db] shadow-xl">
+        {/* Panel del carrito - Responsive */}
+        <aside className="w-full sm:w-[380px] lg:w-[420px] flex flex-col bg-white sm:border-l border-t sm:border-t-0 border-gray-200 shadow-lg relative">
+          {/* Header del carrito en móvil */}
+          <div className="sm:hidden flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
+            <h2 className="font-bold text-lg text-text-primary">Carrito</h2>
+            <span className="bg-primary text-white text-xs font-bold px-2 py-1 rounded-lg">
+              {cart.length}
+            </span>
+          </div>
 
           {/* Items del carrito */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-4">
+          <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3">
             {cart.length === 0 ? (
-              <div className="text-center py-12">
-                <span className="material-symbols-outlined text-6xl text-[#8c735f] mb-4">shopping_cart</span>
-                <p className="text-[#8c735f]">El carrito está vacío</p>
-                <p className="text-sm text-[#8c735f] mt-2">Selecciona productos para agregar</p>
+              <div className="text-center py-8 sm:py-12">
+                <span className="material-symbols-outlined text-4xl sm:text-6xl text-text-secondary mb-2 sm:mb-4">shopping_cart</span>
+                <p className="text-text-secondary text-sm sm:text-base">El carrito está vacío</p>
+                <p className="text-xs sm:text-sm text-text-secondary mt-1 sm:mt-2">Toca productos para agregar</p>
               </div>
             ) : (
               cart.map((item) => (
-                <div key={`${item.tipo}-${item.id}`} className="flex items-center gap-4 group">
-                  <div className="w-12 h-12 rounded-lg bg-center bg-cover flex-shrink-0" style={{backgroundImage: `url('https://images.unsplash.com/photo-${item.tipo === 'producto' ? '1567620905586-95b68e8bf377' : '1567620905778-4d6c1c7a31b1'}?w=100&h=100&fit=crop')`}}></div>
-                  <div className="flex-1">
-                    <h4 className="text-sm font-bold">{item.nombre}</h4>
-                    <p className="text-xs text-[#8c735f]">${item.precio.toFixed(2)} c/u</p>
+                <div key={`${item.tipo}-${item.id}`} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-center bg-cover flex-shrink-0" style={{backgroundImage: `url('https://images.unsplash.com/photo-${item.tipo === 'producto' ? '1567620905586-95b68e8bf377' : '1567620905778-4d6c1c7a31b1'}?w=100&h=100&fit=crop')`}}></div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-xs sm:text-sm font-bold truncate text-text-primary">{item.nombre}</h4>
+                    <p className="text-xs text-text-secondary">${item.precio.toFixed(0)} c/u</p>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     <button 
-                      onClick={() => updateCartQuantity(item.id, item.tipo, item.cantidad - 1)}
-                      className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-[#2d241d] hover:bg-highlight-blue hover:text-white transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        updateCartQuantity(item.id, item.tipo, item.cantidad - 1);
+                      }}
+                      className="w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center rounded-full bg-gray-100 hover:bg-red-100 hover:text-red-600 transition-colors"
                     >
-                      <span className="material-symbols-outlined text-[16px]">remove</span>
+                      <span className="material-symbols-outlined text-[14px] sm:text-[16px]">remove</span>
                     </button>
-                    <span className="font-bold text-sm">{item.cantidad}</span>
+                    <span className="font-bold text-xs sm:text-sm w-6 text-center text-text-primary">{item.cantidad}</span>
                     <button 
-                      onClick={() => updateCartQuantity(item.id, item.tipo, item.cantidad + 1)}
-                      className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-[#2d241d] hover:bg-highlight-blue hover:text-white transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        updateCartQuantity(item.id, item.tipo, item.cantidad + 1);
+                      }}
+                      className="w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center rounded-full bg-gray-100 hover:bg-green-100 hover:text-green-600 transition-colors"
                     >
-                      <span className="material-symbols-outlined text-[16px]">add</span>
+                      <span className="material-symbols-outlined text-[14px] sm:text-[16px]">add</span>
                     </button>
                   </div>
-                  <div className="w-16 text-right">
-                    <p className="text-sm font-bold text-highlight-blue">${(item.precio * item.cantidad).toFixed(2)}</p>
+                  <div className="w-12 sm:w-16 text-right">
+                    <p className="text-xs sm:text-sm font-bold text-primary">${(item.precio * item.cantidad).toFixed(0)}</p>
                   </div>
                 </div>
               ))
@@ -348,56 +338,68 @@ function EventPanelContent() {
           </div>
 
           {/* Panel de checkout */}
-          <div className="p-6 bg-gray-50 dark:bg-[#2d241d]/50 border-t border-[#e6e0db] space-y-4">
+          <div className="p-3 sm:p-4 bg-gray-50 border-t border-gray-200 space-y-3 sm:space-y-4">
             {/* Método de pago */}
-            <div className="space-y-3">
-              <h3 className="text-sm font-bold text-[#181411] dark:text-white">Método de Pago</h3>
+            <div className="space-y-2 sm:space-y-3">
+              <h3 className="text-xs sm:text-sm font-bold text-text-primary">Método de Pago</h3>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => setMetodoPago('efectivo')}
-                  className={`p-3 rounded-xl border-2 transition-all text-sm font-medium ${
+                  className={`p-2 sm:p-3 rounded-xl border-2 transition-all text-xs sm:text-sm font-medium ${
                     metodoPago === 'efectivo'
-                      ? 'border-highlight-blue bg-highlight-blue/10 text-highlight-blue'
-                      : 'border-[#e6e0db] text-[#8c735f] hover:border-highlight-blue/50'
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-gray-200 text-text-secondary hover:border-primary/50'
                   }`}
                 >
-                  <span className="material-symbols-outlined text-[16px] mb-1">payments</span>
+                  <span className="material-symbols-outlined text-[16px] sm:text-[18px] mb-1">payments</span>
                   <div>Efectivo</div>
                 </button>
                 <button
                   onClick={() => setMetodoPago('transferencia')}
-                  className={`p-3 rounded-xl border-2 transition-all text-sm font-medium ${
+                  className={`p-2 sm:p-3 rounded-xl border-2 transition-all text-xs sm:text-sm font-medium ${
                     metodoPago === 'transferencia'
-                      ? 'border-highlight-blue bg-highlight-blue/10 text-highlight-blue'
-                      : 'border-[#e6e0db] text-[#8c735f] hover:border-highlight-blue/50'
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-gray-200 text-text-secondary hover:border-primary/50'
                   }`}
                 >
-                  <span className="material-symbols-outlined text-[16px] mb-1">account_balance</span>
+                  <span className="material-symbols-outlined text-[16px] sm:text-[18px] mb-1">account_balance</span>
                   <div>Transferencia</div>
                 </button>
               </div>
             </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm text-[#8c735f]">
-                <span>Subtotal</span>
-                <span>${cartTotal.toFixed(2)}</span>
+
+            {/* Total */}
+            <div className="space-y-1 sm:space-y-2">
+              <div className="flex justify-between text-xs sm:text-sm text-text-secondary">
+                <span>Subtotal ({cart.length} items)</span>
+                <span>${cartTotal.toFixed(0)}</span>
               </div>
-              <div className="flex justify-between text-2xl font-black text-[#181411] dark:text-white pt-2">
+              <div className="flex justify-between text-xl sm:text-2xl font-black text-text-primary pt-1 sm:pt-2 border-t border-gray-200">
                 <span>Total</span>
-                <span>${cartTotal.toFixed(2)}</span>
+                <span>${cartTotal.toFixed(0)}</span>
               </div>
             </div>
+
+            {/* Botones de acción */}
             <div className="flex flex-col gap-2">
+              {cart.length > 0 && (
+                <button 
+                  onClick={clearCart}
+                  className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 rounded-xl transition-colors text-sm"
+                >
+                  Limpiar Carrito
+                </button>
+              )}
               <button 
                 onClick={finalizarVenta}
                 disabled={cart.length === 0 || ordenLoading}
-                className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-transform active:scale-95 shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 sm:py-4 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
               >
                 {ordenLoading ? (
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 ) : (
                   <>
-                    <span className="material-symbols-outlined">payments</span>
+                    <span className="material-symbols-outlined text-[18px] sm:text-[20px]">payments</span>
                     Finalizar Venta
                   </>
                 )}
