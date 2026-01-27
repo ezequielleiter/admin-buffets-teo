@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import teoAuth from '../lib/teoAuth';
 import { 
   Producto, 
   ProductoFilters, 
@@ -49,12 +50,7 @@ export function useProductos(filters: ProductoFilters = {}): UseProductosResult 
     try {
       setData(prev => ({ ...prev, loading: true, error: null }));
       
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin-buffets/productos${buildQuery(memoizedFilters)}`, {
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
+      const response = await teoAuth.authenticatedRequest(`/api/admin-buffets/productos${buildQuery(memoizedFilters)}`);
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -80,12 +76,8 @@ export function useProductos(filters: ProductoFilters = {}): UseProductosResult 
 
   const createProducto = async (productoData: CreateProductoData): Promise<Producto | null> => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin-buffets/productos`, {
+      const response = await teoAuth.authenticatedRequest('/api/admin-buffets/productos', {
         method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(productoData)
       });
 
@@ -109,12 +101,8 @@ export function useProductos(filters: ProductoFilters = {}): UseProductosResult 
 
   const updateProducto = async (id: string, productoData: UpdateProductoData): Promise<Producto | null> => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin-buffets/productos/${id}`, {
+      const response = await teoAuth.authenticatedRequest(`/api/admin-buffets/productos/${id}`, {
         method: 'PUT',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(productoData)
       });
 
@@ -138,12 +126,8 @@ export function useProductos(filters: ProductoFilters = {}): UseProductosResult 
 
   const deleteProducto = async (id: string): Promise<boolean> => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin-buffets/productos/${id}`, {
-        method: 'DELETE',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        }
+      const response = await teoAuth.authenticatedRequest(`/api/admin-buffets/productos/${id}`, {
+        method: 'DELETE'
       });
 
       if (!response.ok) {

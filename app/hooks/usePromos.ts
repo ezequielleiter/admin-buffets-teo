@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import teoAuth from '../lib/teoAuth';
 import { 
   Promo, 
   PromoFilters, 
@@ -49,12 +50,7 @@ export function usePromos(filters: PromoFilters = {}): UsePromosResult {
     try {
       setData(prev => ({ ...prev, loading: true, error: null }));
       
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin-buffets/promos${buildQuery(memoizedFilters)}`, {
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
+      const response = await teoAuth.authenticatedRequest(`/api/admin-buffets/promos${buildQuery(memoizedFilters)}`);
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -80,12 +76,8 @@ export function usePromos(filters: PromoFilters = {}): UsePromosResult {
 
   const createPromo = async (promoData: CreatePromoData): Promise<Promo | null> => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin-buffets/promos`, {
+      const response = await teoAuth.authenticatedRequest('/api/admin-buffets/promos', {
         method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(promoData)
       });
 
@@ -109,12 +101,8 @@ export function usePromos(filters: PromoFilters = {}): UsePromosResult {
 
   const updatePromo = async (id: string, promoData: UpdatePromoData): Promise<Promo | null> => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin-buffets/promos/${id}`, {
+      const response = await teoAuth.authenticatedRequest(`/api/admin-buffets/promos/${id}`, {
         method: 'PUT',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(promoData)
       });
 
@@ -138,12 +126,8 @@ export function usePromos(filters: PromoFilters = {}): UsePromosResult {
 
   const deletePromo = async (id: string): Promise<boolean> => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin-buffets/promos/${id}`, {
-        method: 'DELETE',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        }
+      const response = await teoAuth.authenticatedRequest(`/api/admin-buffets/promos/${id}`, {
+        method: 'DELETE'
       });
 
       if (!response.ok) {

@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import teoAuth from '../lib/teoAuth';
 import { 
   Evento, 
   EventoFilters, 
@@ -49,12 +50,7 @@ export function useEventos(filters: EventoFilters = {}): UseEventosResult {
     try {
       setData(prev => ({ ...prev, loading: true, error: null }));
       
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin-buffets/eventos${buildQuery(memoizedFilters)}`, {
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
+      const response = await teoAuth.authenticatedRequest(`/api/admin-buffets/eventos${buildQuery(memoizedFilters)}`);
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -80,12 +76,8 @@ export function useEventos(filters: EventoFilters = {}): UseEventosResult {
 
   const createEvento = async (eventoData: CreateEventoData): Promise<Evento | null> => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin-buffets/eventos`, {
+      const response = await teoAuth.authenticatedRequest('/api/admin-buffets/eventos', {
         method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(eventoData)
       });
 
@@ -109,12 +101,8 @@ export function useEventos(filters: EventoFilters = {}): UseEventosResult {
 
   const updateEvento = async (id: string, eventoData: UpdateEventoData): Promise<Evento | null> => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin-buffets/eventos/${id}`, {
+      const response = await teoAuth.authenticatedRequest(`/api/admin-buffets/eventos/${id}`, {
         method: 'PUT',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(eventoData)
       });
 
@@ -138,12 +126,8 @@ export function useEventos(filters: EventoFilters = {}): UseEventosResult {
 
   const deleteEvento = async (id: string): Promise<boolean> => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin-buffets/eventos/${id}`, {
-        method: 'DELETE',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        }
+      const response = await teoAuth.authenticatedRequest(`/api/admin-buffets/eventos/${id}`, {
+        method: 'DELETE'
       });
 
       if (!response.ok) {

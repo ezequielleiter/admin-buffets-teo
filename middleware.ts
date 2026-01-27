@@ -12,40 +12,17 @@ export function middleware(request: NextRequest) {
     pathname.startsWith(path)
   );
   
-  // Si es una ruta protegida, verificar autenticación
   if (isProtectedPath) {
-    // NextAuth maneja las sesiones a través de cookies específicas
-    const sessionToken = request.cookies.get('next-auth.session-token')?.value ||
-                         request.cookies.get('__Secure-next-auth.session-token')?.value ||
-                         request.cookies.get('teo-auth-session')?.value;
+    // En el nuevo sistema JWT, la verificación se hace del lado del cliente
+    // El middleware solo redirige rutas básicas
     
-    if (!sessionToken) {
-      // Redirigir al login si no hay token de sesión
-      const loginUrl = new URL('/login', request.url);
-      return NextResponse.redirect(loginUrl);
-    }
+    // TODO: Aquí podrías verificar un token en cookies si decides usarlas
+    // Por ahora, dejamos que el cliente (useAuth) maneje la autenticación
   }
   
-  // Si está en login y ya tiene una sesión, redirigir al dashboard
-  if (pathname === '/login') {
-    const sessionToken = request.cookies.get('next-auth.session-token')?.value ||
-                         request.cookies.get('__Secure-next-auth.session-token')?.value ||
-                         request.cookies.get('teo-auth-session')?.value;
-    
-    if (sessionToken) {
-      const dashboardUrl = new URL('/dashboard', request.url);
-      return NextResponse.redirect(dashboardUrl);
-    }
-  }
-  
-  // Redirigir root según estado de autenticación
   if (pathname === '/') {
-    const sessionToken = request.cookies.get('next-auth.session-token')?.value ||
-                         request.cookies.get('__Secure-next-auth.session-token')?.value ||
-                         request.cookies.get('teo-auth-session')?.value;
-    
-    const redirectUrl = new URL(sessionToken ? '/dashboard' : '/login', request.url);
-    return NextResponse.redirect(redirectUrl);
+    const loginUrl = new URL('/login', request.url);
+    return NextResponse.redirect(loginUrl);
   }
   
   return NextResponse.next();

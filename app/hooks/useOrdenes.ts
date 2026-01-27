@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import teoAuth from '../lib/teoAuth';
 import { CreateOrdenData, Orden } from '../../types/api';
 
 export function useOrdenes() {
@@ -12,13 +13,9 @@ export function useOrdenes() {
     setError(null);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin-buffets/ordenes`, {
+      const response = await teoAuth.authenticatedRequest('/api/admin-buffets/ordenes', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(data),
+        body: JSON.stringify(data)
       });
 
       if (!response.ok) {

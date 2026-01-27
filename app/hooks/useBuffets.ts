@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import teoAuth from '../lib/teoAuth';
 import { 
   Buffet, 
   BuffetFilters, 
@@ -59,12 +60,7 @@ export function useBuffets(filters: BuffetFilters = {}): UseBuffetsResult {
     try {
       setData(prev => ({ ...prev, loading: true, error: null }));
       
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin-buffets/buffets${buildQuery(memoizedFilters, user)}`, {
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
+      const response = await teoAuth.authenticatedRequest(`/api/admin-buffets/buffets${buildQuery(memoizedFilters, user)}`);
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -90,12 +86,8 @@ export function useBuffets(filters: BuffetFilters = {}): UseBuffetsResult {
 
   const createBuffet = async (buffetData: CreateBuffetData): Promise<Buffet | null> => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin-buffets/buffets`, {
+      const response = await teoAuth.authenticatedRequest('/api/admin-buffets/buffets', {
         method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(buffetData)
       });
 

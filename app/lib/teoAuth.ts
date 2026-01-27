@@ -10,16 +10,13 @@ interface User {
 interface AuthResult {
   success: boolean;
   user?: User;
+  token?: string;
   error?: string;
 }
 
 interface SessionData {
-  user: {
-    id: string;
-    email: string;
-    name?: string;
-    role?: string;
-  };
+  user: User;
+  token: string;
   expires: string;
 }
 
@@ -32,164 +29,123 @@ class TeoAuthClient {
     this.sessionData = this.getStoredSession();
   }
 
-  // Obtener token CSRF requerido por NextAuth
-  async fetchCSRFToken(): Promise<string> {
-    try {
-      console.log("AAA");
-      console.log('🔑 Obteniendo token CSRF de:', `${this.baseUrl}/api/auth/csrf`);
-      
-      const response = await fetch(`${this.baseUrl}/api/auth/csrf`, {
-        credentials: 'include',
-        headers: {
-          'Accept': 'application/json',
-        }
-      });
-      
-      console.log('📡 Respuesta CSRF:', {
-        ok: response.ok,
-        status: response.status,
-        statusText: response.statusText
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Error HTTP ${response.status}: ${response.statusText}`);
-      }
-      
-      const data = await response.json();
-      console.log('🎫 Token CSRF obtenido exitosamente');
-      return data.csrfToken;
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
-      console.error('❌ Error fetching CSRF token:', {
-        error,
-        message: errorMessage,
-        baseUrl: this.baseUrl
-      });
-      throw new Error(`No se pudo obtener el token CSRF: ${errorMessage}`);
-    }
-  }
-
-  // Login usando credentials provider
+  // Login usando la nueva API JWT
   async authenticate(email: string, password: string): Promise<AuthResult> {
     try {
-      console.log("AAA");
-      const csrfToken = await this.fetchCSRFToken();
-      console.log("AAA", csrfToken);
-      
-      const loginResponse = await fetch(`${this.baseUrl}/api/auth/callback/credentials`, {
+      const loginResponse = await fetch(`${this.baseUrl}/api/auth/login-external`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
         },
-        body: new URLSearchParams({
+        body: JSON.stringify({
           email: email,
-          password: password,
-          csrfToken: csrfToken,
-          json: 'true'
-        }),
-        credentials: 'include' // Importante para manejar cookies
+          password: password
+        })
       });
-
-      if (loginResponse.ok) {
-        // Verificar si la autenticación fue exitosa obteniendo la sesión
-        const sessionInfo = await this.getCurrentSession();
-        if (sessionInfo?.user) {
-          this.storeSession(sessionInfo);
-          return { success: true, user: sessionInfo.user };
-        }
+      
+      const loginData = await loginResponse.json();
+      
+      if (loginResponse.ok && loginData.success) {
+        // Crear sesión con los datos recibidos
+        const sessionData: SessionData = {
+          user: loginData.user,
+          token: loginData.token,
+          expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 días
+        };
+        
+        this.storeSession(sessionData);
+        
+        return { 
+          success: true, 
+          user: loginData.user, 
+          token: loginData.token 
+        };
       }
       
-      return { success: false, error: 'Credenciales incorrectas' };
+      return { 
+        success: false, 
+        error: loginData.error || 'Credenciales incorrectas' 
+      };
     } catch (error) {
       console.error('Error en autenticación:', error);
       return { success: false, error: 'Error de conexión' };
     }
   }
 
-  // Obtener sesión actual
-  async getCurrentSession(): Promise<SessionData | null> {
+  // Verificar token JWT
+  async verifyToken(): Promise<boolean> {
     try {
-      console.log("AAA");
-      console.log('🔍 Intentando obtener sesión de:', `${this.baseUrl}/api/auth/session`);
-      console.log("AAA");
+      if (!this.sessionData?.token) {
+        return false;
+      }
       
-      const response = await fetch(`${this.baseUrl}/api/auth/session`, {
-        credentials: 'include',
+      const response = await fetch(`${this.baseUrl}/api/auth/verify-token`, {
         headers: {
+          'Authorization': `Bearer ${this.sessionData.token}`,
           'Accept': 'application/json',
         }
       });
       
-      console.log('📡 Respuesta del servidor:', {
-        ok: response.ok,
-        status: response.status,
-        statusText: response.statusText,
-        url: response.url
-      });
-      
       if (response.ok) {
-        const sessionData = await response.json();
-        console.log('📦 Datos de sesión recibidos:', sessionData);
+        const data = await response.json();
         
-        // NextAuth puede devolver un objeto vacío si no hay sesión
-        if (sessionData && sessionData.user) {
-          return sessionData as SessionData;
+        if (data.valid && data.user) {
+          // Actualizar datos del usuario si es necesario
+          this.sessionData.user = data.user;
+          this.storeSession(this.sessionData);
+          return true;
         }
-      } else {
-        console.warn('⚠️ Respuesta no exitosa del servidor');
       }
-      return null;
+      
+      // Token inválido, limpiar sesión
+      this.clearSessionInternal();
+      return false;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
-      console.error('❌ Error obteniendo sesión:', {
-        error,
-        message: errorMessage,
-        baseUrl: this.baseUrl,
-        fullUrl: `${this.baseUrl}/api/auth/session`
-      });
-      
-      // Si es un error de conexión, no es crítico al inicio
-      if (errorMessage.includes('Failed to fetch')) {
-        console.warn('🔄 No se pudo conectar al backend - continuando sin sesión');
-      }
-      
-      return null;
+      console.error('❌ Error verificando token:', error);
+      return false;
     }
+  }
+
+  // Obtener sesión actual (para compatibilidad)
+  async getCurrentSession(): Promise<SessionData | null> {
+    // Si tenemos una sesión local, verificar si es válida
+    if (this.sessionData) {
+      const isValid = await this.verifyToken();
+      if (isValid) {
+        return this.sessionData;
+      } else {
+        return null;
+      }
+    }
+    
+    return null;
   }
 
   // Cerrar sesión
   async signOut(): Promise<boolean> {
     try {
-      const csrfToken = await this.fetchCSRFToken();
+      // Limpiar sesión local siempre
+      this.clearSessionInternal();
       
-      const response = await fetch(`${this.baseUrl}/api/auth/signout`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-          csrfToken: csrfToken
-        }),
-        credentials: 'include'
-      });
-      
-      if (response.ok) {
-        this.clearSessionInternal();
-        return true;
-      }
-      return false;
+      return true;
     } catch (error) {
       console.error('Error cerrando sesión:', error);
+      // Limpiar sesión local aunque falle
+      this.clearSessionInternal();
       return false;
     }
   }
 
-  // Hacer peticiones autenticadas a tus APIs
+  // Hacer peticiones autenticadas usando JWT
   async authenticatedRequest(endpoint: string, options: RequestInit = {}): Promise<Response> {
+    if (!this.sessionData?.token) {
+      throw new Error('No hay token de autenticación');
+    }
+
     const defaultOptions: RequestInit = {
-      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.sessionData.token}`,
         ...options.headers
       }
     };
@@ -220,6 +176,7 @@ class TeoAuthClient {
   private clearSessionInternal(): void {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('teo-auth-session');
+      localStorage.removeItem('teo-auth-token'); // Por si usamos esto en el futuro
     }
     this.sessionData = null;
   }
@@ -248,18 +205,14 @@ class TeoAuthClient {
   // Verificar conectividad con el backend
   async checkBackendConnection(): Promise<boolean> {
     try {
-      console.log('🔗 Verificando conexión con backend...');
-
-      const response = await fetch(`${this.baseUrl}/api/auth/csrf`, {
-        method: 'GET',
+      const response = await fetch(`${this.baseUrl}/api/auth/login-external`, {
+        method: 'OPTIONS',
         headers: {
           'Accept': 'application/json',
-        },
-        // No incluir credentials aquí para evitar errores de CORS en la verificación
+        }
       });
       
-      const isConnected = response.ok;
-      console.log(isConnected ? '✅ Backend conectado' : '❌ Backend no disponible');
+      const isConnected = response.ok || response.status === 405; // 405 = Method not allowed pero server responde
       return isConnected;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
@@ -273,6 +226,7 @@ class TeoAuthClient {
     return {
       baseUrl: this.baseUrl,
       hasStoredSession: !!this.sessionData,
+      hasToken: !!this.sessionData?.token,
       isAuthenticated: this.isAuthenticated,
       isSessionValid: this.isSessionValid,
       currentUser: this.currentUser
@@ -280,10 +234,8 @@ class TeoAuthClient {
   }
 }
 
-// Crear instancia singleton con debugging
-console.log('🚀 Inicializando TeoAuthClient con URL:', process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000');
 
-const teoAuth = new TeoAuthClient(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000');
+const teoAuth = new TeoAuthClient(process.env.NEXT_PUBLIC_API_URL || 'http://192.168.120.21:3000');
 
 export default teoAuth;
 export { TeoAuthClient };
