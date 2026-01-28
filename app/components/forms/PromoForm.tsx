@@ -33,8 +33,11 @@ export default function PromoForm({ onSubmit, onCancel, isSubmitting = false, pr
         productos: promo.productos,
         valor: promo.valor
       });
+    } else if (buffets.length > 0 && !formData.buffet_id) {
+      // Automáticamente seleccionar el primer buffet si no hay uno seleccionado
+      setFormData(prev => ({ ...prev, buffet_id: buffets[0]._id! }));
     }
-  }, [promo]);
+  }, [promo, buffets, formData.buffet_id]);
 
   const validateForm = (): boolean => {
     const newErrors: PromoFormErrors = {};
@@ -70,17 +73,6 @@ export default function PromoForm({ onSubmit, onCancel, isSubmitting = false, pr
     }
   };
 
-  const handleBuffetChange = (buffetId: string) => {
-    setFormData(prev => ({
-      ...prev,
-      buffet_id: buffetId,
-      productos: promo ? prev.productos : [] // Solo reset productos si no es edición
-    }));
-    if (errors.buffet_id) {
-      setErrors(prev => ({ ...prev, buffet_id: undefined }));
-    }
-  };
-
   const handleProductoToggle = (productoId: string) => {
     const newProductos = formData.productos.includes(productoId)
       ? formData.productos.filter(id => id !== productoId)
@@ -106,34 +98,6 @@ export default function PromoForm({ onSubmit, onCancel, isSubmitting = false, pr
         </h2>
         
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Selector de Buffet */}
-          <div>
-            <label htmlFor="buffet_id" className="block text-sm font-medium text-text-primary mb-2">
-              Buffet *
-            </label>
-            <select
-              id="buffet_id"
-              value={formData.buffet_id}
-              onChange={(e) => handleBuffetChange(e.target.value)}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white text-text-primary ${
-                errors.buffet_id ? 'border-red-500' : 'border-gray-300'
-              }`}
-              disabled={buffetsLoading}
-            >
-              <option value="">
-                {buffetsLoading ? 'Cargando buffets...' : 'Selecciona un buffet'}
-              </option>
-              {buffets.map((buffet) => (
-                <option key={buffet._id} value={buffet._id}>
-                  {buffet.nombre} - {buffet.lugar}
-                </option>
-              ))}
-            </select>
-            {errors.buffet_id && (
-              <p className="text-red-500 text-sm mt-1">{errors.buffet_id}</p>
-            )}
-          </div>
-
           {/* Nombre */}
           <div>
             <label htmlFor="nombre" className="block text-sm font-medium text-text-primary mb-2">
