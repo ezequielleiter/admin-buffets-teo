@@ -48,14 +48,12 @@ export function useBuffets(filters: BuffetFilters = {}): UseBuffetsResult {
         query.append(key, value.toString());
       }
     });
-    console.log( `?${query.toString()}`);
     
     return query.toString() ? `?${query.toString()}` : '';
   }, []);
 
   const loadBuffets = useCallback(async () => {
     if (!user) return; // No cargar hasta que tengamos la información del usuario
-    console.log(user);
     
     try {
       setData(prev => ({ ...prev, loading: true, error: null }));

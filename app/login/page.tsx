@@ -16,13 +16,10 @@ export default function LoginPage() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        console.log('🔍 Verificando autenticación existente...');
         const sessionData = await teoAuth.getCurrentSession();
         if (sessionData?.user && teoAuth.isSessionValid) {
-          console.log('✅ Usuario ya autenticado, redirigiendo al dashboard');
           router.push('/dashboard');
         } else {
-          console.log('ℹ️ No hay sesión activa');
         }
       } catch (error) {
         console.error('⚠️ Error checking auth (no crítico):', error);

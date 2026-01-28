@@ -148,8 +148,7 @@ class TeoAuthClient {
         'Authorization': `Bearer ${this.sessionData.token}`,
         ...options.headers
       }
-    };
-
+    };    
     return fetch(`${this.baseUrl}${endpoint}`, {
       ...options,
       ...defaultOptions
@@ -216,7 +215,6 @@ class TeoAuthClient {
       return isConnected;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
-      console.log('❌ No se puede conectar al backend:', errorMessage);
       return false;
     }
   }
