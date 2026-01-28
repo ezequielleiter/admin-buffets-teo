@@ -101,7 +101,7 @@ function OrdersPanelContent() {
     setAccionLoading(confirmDialog.ordenId + confirmDialog.nuevoEstado);
     const success = await updateOrden(confirmDialog.ordenId, confirmDialog.nuevoEstado);
     if (success) {
-      setOrdenes((prev) => prev.map((o) => o._id === confirmDialog.ordenId ? { ...o, estado: confirmDialog.nuevoEstado } : o));
+      setOrdenes((prev) => prev.map((o) => o._id === confirmDialog.ordenId ? { ...o, estado: confirmDialog.nuevoEstado! } : o));
     } else {
       alert('No se pudo actualizar la orden');
     }
