@@ -214,17 +214,16 @@ function OrdersPanelContent() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="material-symbols-outlined text-primary">shopping_cart_checkout</span>
-                    <span className="font-bold text-base">Orden #{orden._id?.slice(-4)}</span>
+                    <span className="font-bold text-base">Orden #{orden._id?.slice(-4)}{orden.cliente_nombre ? ` - ${orden.cliente_nombre}` : ''}</span>
                   </div>
                   <div className="text-xs text-text-secondary mb-2">{new Date(orden.fechaCreacion).toLocaleString()}</div>
-                  <div className="text-sm font-medium mb-1">Total: <span className="text-primary font-bold">${orden.total.toFixed(0)}</span></div>
-                  <div className="text-xs text-text-secondary mb-2">{orden.nota}</div>
-                  <div className="text-xs text-text-secondary mb-2">Estado: <span className={`font-semibold ${orden.estado === 'pendiente' ? 'text-accent-orange' : orden.estado === 'entregado' ? 'text-primary' : 'text-red-600'}`}>{orden.estado}</span></div>
-                  <div className="text-xs text-text-secondary">Productos:</div>
+                  <div className="text-m text-text-secondary mb-2"><span className='font-bold text-m'>Nota: </span>{orden.nota}</div>
+                  <div className="text-xl text-text-secondary mb-2"><span className='font-bold text-m'>Estado:</span> <span className={`font-bold text-xl ${orden.estado === 'pendiente' ? 'text-accent-orange' : orden.estado === 'entregado' ? 'text-primary' : 'text-red-600'}`}>{orden.estado}</span></div>
+                  <div className="text-xl font-bold text-text-secondary">Productos:</div>
                   <ul className="list-disc pl-5 text-xs text-text-primary">
                     {orden.productosExpandidos.map((prod, idx) => (
                       <li key={idx}>
-                         <span className="font-semibold">{prod.nombre}</span>
+                         <span className="font-semibold text-xl">{prod.nombre}</span>
                       </li>
                     ))}
                   </ul>

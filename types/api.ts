@@ -69,6 +69,7 @@ export interface Orden {
   buffet_id: string;
   evento_id: string;
   user_id: string;
+  cliente_nombre: string;
   productos: ItemProducto[];
   productosExpandidos: ProductoExpandido[];
   total: number;

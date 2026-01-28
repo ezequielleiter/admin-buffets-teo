@@ -38,6 +38,8 @@ function EventPanelContent() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [metodoPago, setMetodoPago] = useState<'efectivo' | 'transferencia'>('efectivo');
   const [cartExpanded, setCartExpanded] = useState(false);
+  const [clienteNombre, setClienteNombre] = useState('');
+  const [clienteNota, setClienteNota] = useState('');
 
   // Cargar evento específico
   useEffect(() => {
@@ -139,10 +141,18 @@ function EventPanelContent() {
 
   const clearCart = () => {
     setCart([]);
+    setClienteNombre('');
+    setClienteNota('');
   };
 
   const finalizarVenta = async () => {
     if (!evento || cart.length === 0) return;
+
+    // Validar nombre del cliente
+    if (!clienteNombre.trim()) {
+      alert('Por favor ingresa el nombre del cliente');
+      return;
+    }
 
     const productosOrden: ItemProducto[] = cart.map(item => ({
       tipo: item.tipo,
@@ -157,7 +167,8 @@ function EventPanelContent() {
       productos: productosOrden,
       total: cartTotal,
       forma_pago: metodoPago,
-      nota: `Venta realizada desde el panel de evento por ${user?.name}`,
+      cliente_nombre: clienteNombre.trim(),
+      ...(clienteNota.trim() && { nota: clienteNota.trim() }),
       estado: 'pendiente' as const
     };
 
@@ -166,6 +177,8 @@ function EventPanelContent() {
       if (orden) {
         alert('Venta realizada exitosamente');
         clearCart();
+        setClienteNombre(''); // Limpiar el nombre después de la venta
+        setClienteNota(''); // Limpiar la nota después de la venta
       } else {
         alert('Error al procesar la venta');
       }
@@ -393,6 +406,31 @@ function EventPanelContent() {
 
             {/* Panel de checkout */}
             <div className="p-3 sm:p-4 bg-gray-50 border-t border-gray-200 space-y-3 sm:space-y-4">
+              {/* Nombre del cliente */}
+              <div className="space-y-2 sm:space-y-3">
+                <h3 className="text-xs sm:text-sm font-bold text-text-primary">Nombre del Cliente *</h3>
+                <input
+                  type="text"
+                  value={clienteNombre}
+                  onChange={(e) => setClienteNombre(e.target.value)}
+                  placeholder="Ingresa el nombre del cliente"
+                  className="w-full p-2 sm:p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary text-sm sm:text-base"
+                  required
+                />
+              </div>
+
+              {/* Nota del cliente */}
+              <div className="space-y-2 sm:space-y-3">
+                <h3 className="text-xs sm:text-sm font-bold text-text-primary">Nota (opcional)</h3>
+                <textarea
+                  value={clienteNota}
+                  onChange={(e) => setClienteNota(e.target.value)}
+                  placeholder="Agrega una nota para esta venta..."
+                  rows={2}
+                  className="w-full p-2 sm:p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary text-sm sm:text-base resize-none"
+                />
+              </div>
+
               {/* Método de pago */}
               <div className="space-y-2 sm:space-y-3">
                 <h3 className="text-xs sm:text-sm font-bold text-text-primary">Método de Pago</h3>
