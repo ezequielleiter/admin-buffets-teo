@@ -14,7 +14,8 @@ export default function ProductoForm({ onSubmit, onCancel, isSubmitting = false,
     buffet_id: producto?.buffet_id || '',
     nombre: producto?.nombre || '',
     valor: producto?.valor || 0,
-    descripcion: producto?.descripcion || ''
+    descripcion: producto?.descripcion || '',
+    imagen: producto?.imagen || ''
   });
   const [errors, setErrors] = useState<ProductoFormErrors>({});
   
@@ -27,7 +28,8 @@ export default function ProductoForm({ onSubmit, onCancel, isSubmitting = false,
         buffet_id: producto.buffet_id,
         nombre: producto.nombre,
         valor: producto.valor,
-        descripcion: producto.descripcion
+        descripcion: producto.descripcion,
+        imagen: producto.imagen || ''
       });
     } else if (buffets.length > 0 && !formData.buffet_id) {
       // Automáticamente seleccionar el primer buffet si no hay uno seleccionado
@@ -49,6 +51,13 @@ export default function ProductoForm({ onSubmit, onCancel, isSubmitting = false,
     }
     if (!formData.descripcion.trim()) {
       newErrors.descripcion = 'La descripción es requerida';
+    }
+    if (formData.imagen && formData.imagen.trim()) {
+      try {
+        new URL(formData.imagen);
+      } catch {
+        newErrors.imagen = 'La URL de la imagen no es válida';
+      }
     }
 
     setErrors(newErrors);
@@ -139,6 +148,36 @@ export default function ProductoForm({ onSubmit, onCancel, isSubmitting = false,
             />
             {errors.descripcion && (
               <p className="text-red-500 text-sm mt-1">{errors.descripcion}</p>
+            )}
+          </div>
+
+          {/* Imagen */}
+          <div>
+            <label htmlFor="imagen" className="block text-sm font-medium text-text-primary mb-2">
+              URL de Imagen (opcional)
+            </label>
+            <input
+              type="url"
+              id="imagen"
+              value={formData.imagen || ''}
+              onChange={(e) => handleInputChange('imagen', e.target.value)}
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white text-text-primary ${
+                errors.imagen ? 'border-red-500' : 'border-gray-300'
+              }`}
+              placeholder="https://example.com/imagen.jpg"
+            />
+            {errors.imagen && (
+              <p className="text-red-500 text-sm mt-1">{errors.imagen}</p>
+            )}
+            {formData.imagen && formData.imagen.trim() && (
+              <div className="mt-2">
+                <img
+                  src={formData.imagen}
+                  alt="Vista previa"
+                  className="w-20 h-20 object-cover rounded border"
+                  onError={(e) => (e.currentTarget.style.display = 'none')}
+                />
+              </div>
             )}
           </div>
 

@@ -29,6 +29,7 @@ export interface Producto {
   nombre: string;
   valor: number;
   descripcion: string;
+  imagen?: string;
   fechaCreacion: Date;
   fechaActualizacion: Date;
   // Datos enriquecidos
@@ -107,6 +108,7 @@ export interface CreateProductoData {
   nombre: string;
   valor: number;
   descripcion: string;
+  imagen?: string;
 }
 
 export interface UpdateProductoData {
@@ -114,6 +116,7 @@ export interface UpdateProductoData {
   nombre: string;
   valor: number;
   descripcion: string;
+  imagen?: string;
 }
 
 export interface CreatePromoData {
@@ -136,6 +139,7 @@ export interface ProductoFormErrors {
   nombre?: string;
   valor?: string;
   descripcion?: string;
+  imagen?: string;
 }
 
 export interface PromoFormErrors {

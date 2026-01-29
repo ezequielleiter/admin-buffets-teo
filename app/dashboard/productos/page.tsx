@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import ProtectedRoute from '../../components/ProtectedRoute';
 import { useProductos } from '../../hooks/useProductos';
 import ProductoForm from '../../components/forms/ProductoForm';
@@ -169,40 +170,57 @@ function ProductosContent() {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 p-4 md:p-6">
                   {productos.map((producto) => (
-                    <div key={producto._id} className="border border-gray-200 rounded-lg p-4 md:p-6 hover:shadow-md transition-shadow">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="bg-primary/10 p-2 rounded-lg text-primary flex-shrink-0">
-                          <span className="material-symbols-outlined text-lg md:text-xl">restaurant_menu</span>
+                    <div key={producto._id} className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+                      {/* Image Banner */}
+                      <div className="relative h-32 bg-gray-100">
+                        {producto.imagen ? (
+                          <Image
+                            src={producto.imagen}
+                            alt={producto.nombre}
+                            fill
+                            className="object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                              e.currentTarget.nextElementSibling!.style.display = 'flex';
+                            }}
+                          />
+                        ) : null}
+                        <div className={`w-full h-full flex items-center justify-center text-primary ${producto.imagen ? 'hidden' : 'flex'}`}>
+                          <span className="material-symbols-outlined text-4xl">restaurant_menu</span>
                         </div>
-                        <div className="flex items-center gap-1">
+                        {/* Edit/Delete buttons overlay */}
+                        <div className="absolute top-2 right-2 flex items-center gap-1">
                           <button 
                             onClick={() => handleEditProducto(producto)}
-                            className="p-1 text-text-secondary hover:text-text-primary rounded hover:bg-gray-100 transition-colors min-h-[32px] min-w-[32px] flex items-center justify-center"
+                            className="p-1 bg-white/80 backdrop-blur-sm text-text-secondary hover:text-text-primary rounded-full hover:bg-white transition-colors min-h-[32px] min-w-[32px] flex items-center justify-center shadow-sm"
                           >
                             <span className="material-symbols-outlined text-sm">edit</span>
                           </button>
                           <button 
                             onClick={() => handleDeleteProducto(producto)}
-                            className="p-1 text-accent-orange hover:text-accent-orange-intense rounded hover:bg-red-50 transition-colors min-h-[32px] min-w-[32px] flex items-center justify-center"
+                            className="p-1 bg-white/80 backdrop-blur-sm text-accent-orange hover:text-accent-orange-intense rounded-full hover:bg-red-50 transition-colors min-h-[32px] min-w-[32px] flex items-center justify-center shadow-sm"
                           >
                             <span className="material-symbols-outlined text-sm">delete</span>
                           </button>
                         </div>
                       </div>
                       
-                      <h4 className="font-medium text-text-primary mb-2 text-sm md:text-base truncate">
-                        {producto.nombre}
-                      </h4>
-                      
-                      <p className="text-text-secondary text-xs md:text-sm mb-4 line-clamp-3">
-                        {producto.descripcion}
-                      </p>
-                      
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-xl md:text-2xl font-bold text-primary">
-                            ${producto.valor.toFixed(2)}
-                          </p>
+                      {/* Content */}
+                      <div className="p-4 md:p-6">
+                        <h4 className="font-medium text-text-primary mb-2 text-sm md:text-base truncate">
+                          {producto.nombre}
+                        </h4>
+                        
+                        <p className="text-text-secondary text-xs md:text-sm mb-4 line-clamp-3">
+                          {producto.descripcion}
+                        </p>
+                        
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-xl md:text-2xl font-bold text-primary">
+                              ${producto.valor.toFixed(2)}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </div>

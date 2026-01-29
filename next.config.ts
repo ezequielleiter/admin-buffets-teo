@@ -7,6 +7,18 @@ const nextConfig: NextConfig = {
     '192.168.120.21',
     '192.168.120.*', // Permite cualquier dispositivo en esta subred
   ],
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+      {
+        protocol: 'http',
+        hostname: '**',
+      },
+    ],
+  },
 };
 
 export default nextConfig;
