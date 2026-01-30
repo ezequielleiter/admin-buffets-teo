@@ -91,16 +91,20 @@ export default function EventoForm({ onSubmit, onCancel, isSubmitting = false, e
     }));
   };
 
-  // Formatear fecha para input datetime-local
+  // Formatear fecha para input datetime-local (mantener local, no UTC)
   const formatDateTimeLocal = (date: string) => {
     if (!date) return '';
-    return new Date(date).toISOString().slice(0, 16);
+    // Si ya está en formato yyyy-MM-ddTHH:mm, devolverlo
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(date)) return date;
+    // Si es ISO, convertir a local
+    const d = new Date(date);
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   };
 
   const handleDateChange = (value: string) => {
-    // Convertir de datetime-local a ISO string
-    const isoDate = new Date(value).toISOString();
-    handleInputChange('fecha', isoDate);
+    // Guardar el valor tal cual (yyyy-MM-ddTHH:mm)
+    handleInputChange('fecha', value);
   };
 
   return (
