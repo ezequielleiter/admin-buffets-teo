@@ -51,7 +51,8 @@ export function useEventos(filters: EventoFilters = {}): UseEventosResult {
       setData(prev => ({ ...prev, loading: true, error: null }));
       
       const response = await teoAuth.authenticatedRequest(`/api/admin-buffets/eventos${buildQuery(memoizedFilters)}`);
-
+      console.log(response);
+      
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Error al cargar eventos');
