@@ -23,6 +23,7 @@ export interface Evento {
 }
 
 export interface Producto {
+  disponible: boolean;
   _id?: string;
   buffet_id: string;
   user_id: string;
@@ -109,6 +110,7 @@ export interface CreateProductoData {
   valor: number;
   descripcion: string;
   imagen?: string;
+  disponible?: boolean | null;
 }
 
 export interface UpdateProductoData {
@@ -117,6 +119,7 @@ export interface UpdateProductoData {
   valor: number;
   descripcion: string;
   imagen?: string;
+  disponible?: boolean | null;
 }
 
 export interface CreatePromoData {

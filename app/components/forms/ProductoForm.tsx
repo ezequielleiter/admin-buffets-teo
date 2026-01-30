@@ -15,7 +15,8 @@ export default function ProductoForm({ onSubmit, onCancel, isSubmitting = false,
     nombre: producto?.nombre || '',
     valor: producto?.valor || 0,
     descripcion: producto?.descripcion || '',
-    imagen: producto?.imagen || ''
+    imagen: producto?.imagen || '',
+    disponible: producto?.disponible ?? false
   });
   const [errors, setErrors] = useState<ProductoFormErrors>({});
   
@@ -24,12 +25,14 @@ export default function ProductoForm({ onSubmit, onCancel, isSubmitting = false,
   // Efecto para actualizar el formulario cuando se pasa un producto para edición
   useEffect(() => {
     if (producto) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData({
         buffet_id: producto.buffet_id,
         nombre: producto.nombre,
         valor: producto.valor,
         descripcion: producto.descripcion,
-        imagen: producto.imagen || ''
+        imagen: producto.imagen || '',
+        disponible: producto.disponible ?? false
       });
     } else if (buffets.length > 0 && !formData.buffet_id) {
       // Automáticamente seleccionar el primer buffet si no hay uno seleccionado
@@ -71,7 +74,7 @@ export default function ProductoForm({ onSubmit, onCancel, isSubmitting = false,
     }
   };
 
-  const handleInputChange = (field: keyof CreateProductoData, value: string | number) => {
+  const handleInputChange = (field: keyof CreateProductoData, value: string | number | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: undefined }));
@@ -179,6 +182,26 @@ export default function ProductoForm({ onSubmit, onCancel, isSubmitting = false,
                 />
               </div>
             )}
+          </div>
+
+          {/* Disponible Switch */}
+          <div className="flex items-center gap-3 pt-2">
+            <label htmlFor="disponible" className="block text-sm font-medium text-text-primary">
+              Disponible
+            </label>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={formData.disponible === true}
+              id="disponible"
+              onClick={() => handleInputChange('disponible', !(formData.disponible === true))}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${formData.disponible === true ? 'bg-green-500' : 'bg-gray-300'}`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${formData.disponible === true ? 'translate-x-6' : 'translate-x-1'}`}
+              />
+            </button>
+            <span className="text-xs text-text-secondary">{formData.disponible === true ? 'Disponible' : 'No disponible'}</span>
           </div>
 
           {/* Botones */}

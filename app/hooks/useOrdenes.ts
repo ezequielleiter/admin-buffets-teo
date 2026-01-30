@@ -24,7 +24,6 @@ export function useOrdenes() {
         method: 'POST',
         body: JSON.stringify(data)
       });
-      console.log(response);
       
       if (!response.ok) {
         const errorData = await response.json();

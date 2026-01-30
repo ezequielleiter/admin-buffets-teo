@@ -94,7 +94,7 @@ function ProductosContent() {
   }
 
   return (
-    <DashboardLayout>
+    <DashboardLayout title='Productos'>
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col overflow-y-auto">
         {/* Top Navigation Bar */}
@@ -220,6 +220,17 @@ function ProductosContent() {
                             <p className="text-xl md:text-2xl font-bold text-primary">
                               ${producto.valor.toFixed(2)}
                             </p>
+                          </div>
+                          <div>
+                            {producto.disponible === true ? (
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 border border-green-200">
+                                Disponible
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200">
+                                No disponible
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>

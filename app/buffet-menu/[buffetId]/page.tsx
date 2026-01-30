@@ -15,6 +15,7 @@ interface Producto {
   valor: number;
   descripcion?: string;
   imagen?: string;
+  disponible?: boolean
 }
 
 interface Promo {
@@ -44,7 +45,6 @@ export default function BuffetMenuPage() {
             'Accept': 'application/json',
           }
         });
-        console.log("AAA", response);
         
         if (response.ok) {
           const data = await response.json();
