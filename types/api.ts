@@ -20,6 +20,14 @@ export interface Evento {
   fechaActualizacion: Date;
   // Datos enriquecidos
   buffet?: Buffet;
+  imagen?: string;
+  descripcion?: string
+    redes_artista?: {
+    instagram?: string;
+    facebook?: string;
+    spotify?: string;
+    youtube?: string;
+  };
 }
 
 export interface Producto {
@@ -96,12 +104,28 @@ export interface CreateEventoData {
   nombre: string;
   fecha: string; // ISO string
   buffet_id: string;
+  imagen?: string;
+  descripcion?: string;
+  redes_artista?: {
+    instagram?: string;
+    facebook?: string;
+    spotify?: string;
+    youtube?: string;
+  };
 }
 
 export interface UpdateEventoData {
   nombre: string;
   fecha: string; // ISO string
   buffet_id: string;
+  imagen?: string;
+  descripcion?: string;
+  redes_artista?: {
+    instagram?: string;
+    facebook?: string;
+    spotify?: string;
+    youtube?: string;
+  };
 }
 
 export interface CreateProductoData {

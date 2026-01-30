@@ -13,7 +13,15 @@ export default function EventoForm({ onSubmit, onCancel, isSubmitting = false, e
   const [formData, setFormData] = useState<CreateEventoData | UpdateEventoData>({
     nombre: evento?.nombre || '',
     fecha: evento?.fecha ? new Date(evento.fecha).toISOString() : '',
-    buffet_id: evento?.buffet_id || ''
+    buffet_id: evento?.buffet_id || '',
+    imagen: evento?.imagen || '',
+    descripcion: evento?.descripcion || '',
+    redes_artista: {
+      instagram: evento?.redes_artista?.instagram || '',
+      facebook: evento?.redes_artista?.facebook || '',
+      spotify: evento?.redes_artista?.spotify || '',
+      youtube: evento?.redes_artista?.youtube || ''
+    }
   });
   const [errors, setErrors] = useState<Partial<CreateEventoData>>({});
   
@@ -22,10 +30,19 @@ export default function EventoForm({ onSubmit, onCancel, isSubmitting = false, e
   // Efecto para actualizar el formulario cuando se pasa un evento para edición
   useEffect(() => {
     if (evento) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData({
         nombre: evento.nombre,
         fecha: new Date(evento.fecha).toISOString(),
-        buffet_id: evento.buffet_id
+        buffet_id: evento.buffet_id,
+        imagen: evento.imagen || '',
+        descripcion: evento.descripcion || '',
+        redes_artista: {
+          instagram: evento.redes_artista?.instagram || '',
+          facebook: evento.redes_artista?.facebook || '',
+          spotify: evento.redes_artista?.spotify || '',
+          youtube: evento.redes_artista?.youtube || ''
+        }
       });
     } else if (buffets.length > 0 && !formData.buffet_id) {
       // Automáticamente seleccionar el primer buffet si no hay uno seleccionado
@@ -57,11 +74,21 @@ export default function EventoForm({ onSubmit, onCancel, isSubmitting = false, e
     }
   };
 
-  const handleInputChange = (field: keyof CreateEventoData, value: string) => {
+  const handleInputChange = (field: keyof CreateEventoData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: undefined }));
     }
+  };
+
+  const handleRedSocialChange = (red: keyof NonNullable<CreateEventoData['redes_artista']>, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      redes_artista: {
+        ...prev.redes_artista,
+        [red]: value
+      }
+    }));
   };
 
   // Formatear fecha para input datetime-local
@@ -122,6 +149,83 @@ export default function EventoForm({ onSubmit, onCancel, isSubmitting = false, e
             {errors.fecha && (
               <p className="text-red-500 text-sm mt-1">{errors.fecha}</p>
             )}
+          </div>
+
+          {/* Imagen */}
+          <div>
+            <label htmlFor="imagen" className="block text-sm font-medium text-text-primary mb-2">
+              URL de Imagen (opcional)
+            </label>
+            <input
+              type="url"
+              id="imagen"
+              value={formData.imagen || ''}
+              onChange={(e) => handleInputChange('imagen', e.target.value)}
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white text-text-primary"
+              placeholder="https://example.com/imagen.jpg"
+            />
+            {formData.imagen && formData.imagen.trim() && (
+              <div className="mt-2">
+                <img
+                  src={formData.imagen}
+                  alt="Vista previa"
+                  className="w-20 h-20 object-cover rounded border"
+                  onError={(e) => (e.currentTarget.style.display = 'none')}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Descripción */}
+          <div>
+            <label htmlFor="descripcion" className="block text-sm font-medium text-text-primary mb-2">
+              Descripción (opcional)
+            </label>
+            <textarea
+              id="descripcion"
+              value={formData.descripcion || ''}
+              onChange={(e) => handleInputChange('descripcion', e.target.value)}
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white text-text-primary"
+              placeholder="Describe el evento..."
+              rows={2}
+            />
+          </div>
+
+          {/* Redes del Artista */}
+          <div>
+            <label className="block text-sm font-medium text-text-primary mb-2">
+              Redes del Artista (opcional)
+            </label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <input
+                type="url"
+                placeholder="Instagram"
+                value={formData.redes_artista?.instagram || ''}
+                onChange={e => handleRedSocialChange('instagram', e.target.value)}
+                className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white text-text-primary"
+              />
+              <input
+                type="url"
+                placeholder="Facebook"
+                value={formData.redes_artista?.facebook || ''}
+                onChange={e => handleRedSocialChange('facebook', e.target.value)}
+                className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white text-text-primary"
+              />
+              <input
+                type="url"
+                placeholder="Spotify"
+                value={formData.redes_artista?.spotify || ''}
+                onChange={e => handleRedSocialChange('spotify', e.target.value)}
+                className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white text-text-primary"
+              />
+              <input
+                type="url"
+                placeholder="YouTube"
+                value={formData.redes_artista?.youtube || ''}
+                onChange={e => handleRedSocialChange('youtube', e.target.value)}
+                className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white text-text-primary"
+              />
+            </div>
           </div>
 
           {/* Botones */}
