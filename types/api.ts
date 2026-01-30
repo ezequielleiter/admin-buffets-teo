@@ -167,6 +167,7 @@ export interface ProductoFormErrors {
   valor?: string;
   descripcion?: string;
   imagen?: string;
+  disponible?: string;
 }
 
 export interface PromoFormErrors {

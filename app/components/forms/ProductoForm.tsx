@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { CreateProductoData, UpdateProductoData, Producto, ProductoFormErrors } from '../../../types/api';
 import { useBuffets } from '../../hooks/useBuffets';
 
@@ -174,11 +175,14 @@ export default function ProductoForm({ onSubmit, onCancel, isSubmitting = false,
             )}
             {formData.imagen && formData.imagen.trim() && (
               <div className="mt-2">
-                <img
+                <Image
                   src={formData.imagen}
                   alt="Vista previa"
+                  width={80}
+                  height={80}
                   className="w-20 h-20 object-cover rounded border"
                   onError={(e) => (e.currentTarget.style.display = 'none')}
+                  unoptimized
                 />
               </div>
             )}

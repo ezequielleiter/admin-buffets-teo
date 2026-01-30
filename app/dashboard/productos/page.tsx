@@ -9,6 +9,7 @@ import { CreateProductoData, UpdateProductoData, Producto } from '../../../types
 import DashboardLayout from '@/app/components/DashboardLayout';
 
 function ProductosContent() {
+  const [imageLoadError, setImageLoadError] = useState<{ [key: string]: boolean }>({});
   const [showForm, setShowForm] = useState(false);
   const [editingProducto, setEditingProducto] = useState<Producto | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -173,21 +174,19 @@ function ProductosContent() {
                     <div key={producto._id} className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
                       {/* Image Banner */}
                       <div className="relative h-32 bg-gray-100">
-                        {producto.imagen ? (
+                        {producto.imagen && !imageLoadError[producto._id ?? ''] ? (
                           <Image
                             src={producto.imagen}
                             alt={producto.nombre}
                             fill
                             className="object-cover"
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none';
-                              e.currentTarget.nextElementSibling!.style.display = 'flex';
-                            }}
+                            onError={() => setImageLoadError(prev => ({ ...prev, [producto._id ?? '']: true }))}
                           />
-                        ) : null}
-                        <div className={`w-full h-full flex items-center justify-center text-primary ${producto.imagen ? 'hidden' : 'flex'}`}>
-                          <span className="material-symbols-outlined text-4xl">restaurant_menu</span>
-                        </div>
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-primary">
+                            <span className="material-symbols-outlined text-4xl">restaurant_menu</span>
+                          </div>
+                        )}
                         {/* Edit/Delete buttons overlay */}
                         <div className="absolute top-2 right-2 flex items-center gap-1">
                           <button 
