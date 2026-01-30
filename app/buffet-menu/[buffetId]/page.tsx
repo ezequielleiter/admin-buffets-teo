@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { FaInstagram, FaFacebook, FaSpotify, FaYoutube, FaTimes } from 'react-icons/fa';
 import { useParams } from 'next/navigation';
+import BuffetLayout from './layout';
 
 interface Buffet {
   _id: string;
