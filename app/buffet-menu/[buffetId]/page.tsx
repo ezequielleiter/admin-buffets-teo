@@ -46,6 +46,17 @@ interface Evento {
   };
 }
 
+function getGoogleCalendarUrl(evento: Evento) {
+  const start = new Date(evento.fecha);
+  const end = new Date(start.getTime() + 2 * 60 * 60 * 1000);
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  const format = (d: Date) => `${d.getUTCFullYear()}${pad(d.getUTCMonth() + 1)}${pad(d.getUTCDate())}T${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}00Z`;
+  const dates = `${format(start)}/${format(end)}`;
+  const text = encodeURIComponent(evento.nombre);
+  const details = encodeURIComponent(evento.descripcion || '');
+  return `https://www.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${dates}&details=${details}`;
+}
+
 export default function BuffetMenuPage() {
   const params = useParams();
   const buffetId = params.buffetId as string;
@@ -234,8 +245,19 @@ export default function BuffetMenuPage() {
                 />
               )}
               <h3 className="text-2xl font-bold text-[#1e293b] mb-2 text-center">{eventoSeleccionado.nombre}</h3>
-              <div className="text-[#fbbf24] font-semibold text-base mb-2 text-center">
+              <div className="text-[#fbbf24] font-semibold text-base mb-2 text-center flex flex-col items-center gap-2">
                 {eventoSeleccionado.fecha && new Date(eventoSeleccionado.fecha).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                {/* Botón para agendar en Google Calendar */}
+                {eventoSeleccionado.fecha && (
+                  <a
+                    href={getGoogleCalendarUrl(eventoSeleccionado)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-1 inline-block bg-[#fbbf24] text-[#1e293b] font-semibold px-4 py-2 rounded-full shadow hover:bg-[#fde68a] transition text-sm"
+                  >
+                    Agendar evento
+                  </a>
+                )}
               </div>
               {eventoSeleccionado.descripcion && (
                 <p className="text-[#64748b] text-base mb-4 text-center whitespace-pre-line">{eventoSeleccionado.descripcion}</p>
