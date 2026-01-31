@@ -104,7 +104,7 @@ export interface CreateEventoData {
   nombre: string;
   fecha: string; // ISO string
   buffet_id: string;
-  imagen?: string;
+  imagen: string;
   descripcion?: string;
   redes_artista?: {
     instagram?: string;
@@ -118,7 +118,7 @@ export interface UpdateEventoData {
   nombre: string;
   fecha: string; // ISO string
   buffet_id: string;
-  imagen?: string;
+  imagen: string;
   descripcion?: string;
   redes_artista?: {
     instagram?: string;

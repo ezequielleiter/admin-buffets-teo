@@ -62,6 +62,15 @@ export default function EventoForm({ onSubmit, onCancel, isSubmitting = false, e
     if (!formData.buffet_id) {
       newErrors.buffet_id = 'El buffet es requerido';
     }
+    if (!formData.imagen || !formData.imagen.trim()) {
+      newErrors.imagen = 'La URL de la imagen es requerida';
+    } else {
+      try {
+        new URL(formData.imagen);
+      } catch {
+        newErrors.imagen = 'La URL de la imagen no es válida';
+      }
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -103,8 +112,13 @@ export default function EventoForm({ onSubmit, onCancel, isSubmitting = false, e
   };
 
   const handleDateChange = (value: string) => {
-    // Guardar el valor tal cual (yyyy-MM-ddTHH:mm)
-    handleInputChange('fecha', value);
+    if (value) {
+      // Convertir yyyy-MM-ddTHH:mm a ISO string (asumiendo local time)
+      const date = new Date(value + ':00'); // Add seconds
+      handleInputChange('fecha', date.toISOString());
+    } else {
+      handleInputChange('fecha', '');
+    }
   };
 
   return (
@@ -158,16 +172,21 @@ export default function EventoForm({ onSubmit, onCancel, isSubmitting = false, e
           {/* Imagen */}
           <div>
             <label htmlFor="imagen" className="block text-sm font-medium text-text-primary mb-2">
-              URL de Imagen (opcional)
+              URL de Imagen *
             </label>
             <input
               type="url"
               id="imagen"
               value={formData.imagen || ''}
               onChange={(e) => handleInputChange('imagen', e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white text-text-primary"
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white text-text-primary ${
+                errors.imagen ? 'border-red-500' : 'border-gray-300'
+              }`}
               placeholder="https://example.com/imagen.jpg"
             />
+            {errors.imagen && (
+              <p className="text-red-500 text-sm mt-1">{errors.imagen}</p>
+            )}
             {formData.imagen && formData.imagen.trim() && (
               <div className="mt-2">
                 <img
