@@ -2,6 +2,7 @@
 
 import { ReactNode, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import { usePathname } from 'next/navigation';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -11,6 +12,7 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children, title = "Dashboard" }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, logout } = useAuth();
+  const pathname = usePathname();
 
   const handleLogout = () => {
     if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
@@ -44,19 +46,19 @@ export default function DashboardLayout({ children, title = "Dashboard" }: Dashb
 
           {/* Nav Links */}
           <nav className="flex-1 space-y-2">
-            <a className="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary text-white font-medium" href="/dashboard">
+            <a className={`flex items-center gap-3 px-4 py-3 rounded-lg ${pathname === '/dashboard' ? 'bg-primary text-white font-medium' : 'hover:bg-white/10 text-gray-300 hover:text-white transition-colors'}`} href="/dashboard">
               <span className="material-symbols-outlined">dashboard</span>
               <span>Dashboard</span>
             </a>
-            <a className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-300 hover:text-white transition-colors" href="/dashboard/eventos">
+            <a className={`flex items-center gap-3 px-4 py-3 rounded-lg ${pathname === '/dashboard/eventos' ? 'bg-primary text-white font-medium' : 'hover:bg-white/10 text-gray-300 hover:text-white transition-colors'}`} href="/dashboard/eventos">
               <span className="material-symbols-outlined">calendar_today</span>
               <span>Eventos</span>
             </a>
-            <a className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-300 hover:text-white transition-colors" href="/dashboard/productos">
+            <a className={`flex items-center gap-3 px-4 py-3 rounded-lg ${pathname === '/dashboard/productos' ? 'bg-primary text-white font-medium' : 'hover:bg-white/10 text-gray-300 hover:text-white transition-colors'}`} href="/dashboard/productos">
               <span className="material-symbols-outlined">inventory_2</span>
               <span>Productos</span>
             </a>
-            <a className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-300 hover:text-white transition-colors" href="/dashboard/promos">
+            <a className={`flex items-center gap-3 px-4 py-3 rounded-lg ${pathname === '/dashboard/promos' ? 'bg-primary text-white font-medium' : 'hover:bg-white/10 text-gray-300 hover:text-white transition-colors'}`} href="/dashboard/promos">
               <span className="material-symbols-outlined">sell</span>
               <span>Promos</span>
             </a>
