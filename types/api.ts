@@ -133,7 +133,7 @@ export interface CreateProductoData {
   nombre: string;
   valor: number;
   descripcion: string;
-  imagen?: string;
+  imagen: string;
   disponible?: boolean | null;
 }
 
@@ -142,7 +142,7 @@ export interface UpdateProductoData {
   nombre: string;
   valor: number;
   descripcion: string;
-  imagen?: string;
+  imagen: string;
   disponible?: boolean | null;
 }
 

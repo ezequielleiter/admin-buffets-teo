@@ -62,6 +62,8 @@ export default function ProductoForm({ onSubmit, onCancel, isSubmitting = false,
       } catch {
         newErrors.imagen = 'La URL de la imagen no es válida';
       }
+    } else {
+      newErrors.imagen = 'La URL de la imagen es requerida';
     }
 
     setErrors(newErrors);
@@ -158,7 +160,7 @@ export default function ProductoForm({ onSubmit, onCancel, isSubmitting = false,
           {/* Imagen */}
           <div>
             <label htmlFor="imagen" className="block text-sm font-medium text-text-primary mb-2">
-              URL de Imagen (opcional)
+              URL de Imagen *
             </label>
             <input
               type="url"
