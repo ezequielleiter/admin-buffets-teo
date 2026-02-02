@@ -122,16 +122,26 @@ function EventPanelContent() {
     setClienteNota(orden.nota || '');
     setMetodoPago(orden.forma_pago);
     
-    // Convertir productos de la orden al formato del carrito usando productosExpandidos
-    const cartItems: CartItem[] = orden.productosExpandidos?.map((item: any) => ({
-      id: item.id,
-      tipo: item.tipo,
-      nombre: item.nombre,
-      precio: item.precio_unitario,
-      cantidad: item.cantidad,
-      descripcion: item.tipo === 'producto' ? 'Producto' : 'Promoción especial',
-      imagen: item.imagen
-    })) || [];
+    // Convertir productos de la orden al formato del carrito usando el array original de productos
+    // y obteniendo información de display de productosExpandidos
+    const cartItems: CartItem[] = orden.productos?.map((item: ItemProducto) => {
+      // Buscar información de display correspondiente en productosExpandidos
+      const expandedInfo = orden.productosExpandidos?.find((expanded: any) => {
+        // Mapear por cantidad y precio para encontrar el item correspondiente
+        return expanded.cantidad === item.cantidad && 
+               expanded.precio_unitario === item.precio_unitario;
+      });
+      
+      return {
+        id: item.id,
+        tipo: item.tipo,
+        nombre: expandedInfo?.nombre || 'Producto desconocido',
+        precio: item.precio_unitario,
+        cantidad: item.cantidad,
+        descripcion: item.tipo === 'producto' ? 'Producto' : 'Promoción especial',
+        imagen: expandedInfo?.imagen
+      };
+    }) || [];
     
     setCart(cartItems);
     setCurrentView('productos');
@@ -218,6 +228,14 @@ function EventPanelContent() {
     // Validar nombre del cliente
     if (!clienteNombre.trim()) {
       alert('Por favor ingresa el nombre del cliente');
+      return;
+    }
+
+    // Validar que todos los items del carrito tengan id y tipo válidos
+    const invalidItems = cart.filter(item => !item.id || !item.tipo);
+    if (invalidItems.length > 0) {
+      console.error('Items del carrito con datos inválidos:', invalidItems);
+      alert('Error: Hay productos sin información completa en el carrito. Por favor, vuelve a cargarlos.');
       return;
     }
 
