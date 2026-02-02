@@ -328,6 +328,33 @@ export default function BuffetMenuPage() {
           )}
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="bg-gradient-to-r from-[#1e293b] to-[#334155] text-white py-8 px-4 mt-auto">
+        <div className="w-full max-w-3xl mx-auto text-center">
+          <div className="flex flex-col items-center gap-4">
+            <p className="text-[#f1f5f9] text-sm opacity-90">
+              Esta aplicación fue desarrollada por la
+            </p>
+            <h3 className="text-xl font-bold text-[#fbbf24]">
+              Cooperativa de Trabajo Teo Coop
+            </h3>
+            <a
+              href="https://teo.coop.ar" // Cambia esta URL por la página real de tu cooperativa
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-[#fbbf24] text-[#1e293b] px-6 py-3 rounded-full font-semibold shadow-lg hover:bg-[#fde68a] transition-all duration-300 hover:shadow-xl"
+            >
+              Visitar nuestra página
+            </a>
+            <div className="border-t border-[#475569] pt-4 mt-4 w-full">
+              <p className="text-[#cbd5e1] text-xs">
+                © {new Date().getFullYear()} TEO Coop. Todos los derechos reservados.
+              </p>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
