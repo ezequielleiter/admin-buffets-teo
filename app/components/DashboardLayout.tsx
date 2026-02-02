@@ -62,6 +62,10 @@ export default function DashboardLayout({ children, title = "Dashboard" }: Dashb
               <span className="material-symbols-outlined">sell</span>
               <span>Promos</span>
             </a>
+            <a className={`flex items-center gap-3 px-4 py-3 rounded-lg ${pathname === '/dashboard/banners' ? 'bg-primary text-white font-medium' : 'hover:bg-white/10 text-gray-300 hover:text-white transition-colors'}`} href="/dashboard/banners">
+              <span className="material-symbols-outlined">campaign</span>
+              <span>Banners</span>
+            </a>
           </nav>
 
           {/* Footer Sidebar */}

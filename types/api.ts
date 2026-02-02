@@ -59,6 +59,19 @@ export interface Promo {
   productosDetalle?: Producto[];
 }
 
+export interface Banner {
+  _id?: string;
+  buffet_id: string;
+  user_id: string;
+  mensaje: string;
+  link?: string;
+  color: string;
+  fechaCreacion: Date;
+  fechaActualizacion: Date;
+  // Datos enriquecidos
+  buffet?: Buffet;
+}
+
 export interface ItemProducto {
   tipo: 'producto' | 'promo';
   id: string;
@@ -153,11 +166,24 @@ export interface CreatePromoData {
   valor: number;
 }
 
+export interface CreateBannerData {
+  buffet_id: string;
+  mensaje: string;
+  link?: string;
+  color: string;
+}
+
 export interface UpdatePromoData {
   buffet_id: string;
   nombre: string;
   productos: string[];
   valor: number;
+}
+
+export interface UpdateBannerData {
+  mensaje?: string;
+  link?: string;
+  color?: string;
 }
 
 // Tipos de errores para formularios
@@ -175,6 +201,12 @@ export interface PromoFormErrors {
   nombre?: string;
   productos?: string;
   valor?: string;
+}
+
+export interface BannerFormErrors {
+  mensaje?: string;
+  color?: string;
+  link?: string;
 }
 
 export interface CreateOrdenData {
@@ -221,6 +253,15 @@ export interface PromoFilters {
   pagina?: number;
 }
 
+export interface BannerFilters {
+  buffet_id?: string;
+  user_id?: string;
+  mensaje?: string;
+  color?: string;
+  limite?: number;
+  pagina?: number;
+}
+
 export interface OrdenFilters {
   buffet_id?: string;
   evento_id?: string;
@@ -259,6 +300,10 @@ export interface ProductosResponse extends PaginatedResponse<Producto> {
 
 export interface PromosResponse extends PaginatedResponse<Promo> {
   promos: Promo[];
+}
+
+export interface BannersResponse extends PaginatedResponse<Banner> {
+  banners: Banner[];
 }
 
 export interface OrdenesResponse extends PaginatedResponse<Orden> {
