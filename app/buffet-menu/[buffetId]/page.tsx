@@ -81,6 +81,7 @@ export default function BuffetMenuPage() {
   const [error, setError] = useState<string | null>(null);
   const [eventoSeleccionado, setEventoSeleccionado] = useState<Evento | null>(null);
   const [bannerActivo, setBannerActivo] = useState(0);
+  const [eventoActivo, setEventoActivo] = useState(0);
 
   useEffect(() => {
     const fetchBuffet = async () => {
@@ -117,6 +118,11 @@ export default function BuffetMenuPage() {
     // No returns here, solo fetch y setState
   }, [buffetId]);
 
+  // Ordenar eventos por fecha ascendente y filtrar próximos
+  const eventosProximos = (eventos || [])
+    .filter(e => e.fecha && new Date(e.fecha) >= new Date())
+    .sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime());
+
   // Carrusel automático para banners
   useEffect(() => {
     if (banners.length <= 1) return;
@@ -128,16 +134,30 @@ export default function BuffetMenuPage() {
     return () => clearInterval(interval);
   }, [banners.length]);
 
+  // Carrusel automático para eventos
+  useEffect(() => {
+    if (eventosProximos.length <= 1) return;
+    
+    const interval = setInterval(() => {
+      setEventoActivo((prev) => {
+        const next = prev + 1;
+        // Si llega al final del array duplicado, resetea a 0 sin transición
+        if (next >= eventosProximos.length * 2) {
+          setTimeout(() => setEventoActivo(eventosProximos.length), 0);
+          return eventosProximos.length;
+        }
+        return next;
+      });
+    }, 5000); // Cambia cada 5 segundos
+
+    return () => clearInterval(interval);
+  }, [eventosProximos.length]);
+
   // Colores sugeridos para la landing
   // Primario: #1e293b (azul oscuro)
   // Secundario: #fbbf24 (amarillo)
   // Fondo: #f8fafc (gris claro)
   // Texto: #0f172a (casi negro)
-
-  // Ordenar eventos por fecha ascendente y filtrar próximos
-  const eventosProximos = (eventos || [])
-    .filter(e => e.fecha && new Date(e.fecha) >= new Date())
-    .sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime());
 
   // Render condicional fuera del cuerpo de useEffect
   if (loading) {
@@ -198,6 +218,19 @@ export default function BuffetMenuPage() {
         .animate-fade-in {
           animation: fade-in 0.2s ease-out;
         }
+        .carousel-container {
+          scroll-snap-type: x mandatory;
+          scroll-behavior: smooth;
+        }
+        .carousel-item {
+          scroll-snap-align: center;
+          scroll-snap-stop: always;
+        }
+        .carousel-centered {
+          display: flex;
+          transform: translateX(-50%);
+          transition: transform 0.6s ease-in-out;
+        }
       `}</style>
       {/* Header con logo, nombre y redes */}
       <header className="bg-gradient-to-r from-[#1e293b] to-[#334155] text-white py-8 px-4 flex flex-col items-center">
@@ -240,33 +273,53 @@ export default function BuffetMenuPage() {
         {eventosProximos.length === 0 ? (
           <div className="text-center text-[#64748b]">No hay eventos próximos.</div>
         ) : (
-          <div className="flex gap-4 overflow-x-auto pb-2 hide-scrollbar">
-            {eventosProximos.map((evento) => (
-              <button
-                key={evento._id}
-                className="min-w-[260px] max-w-xs bg-white rounded-xl shadow-lg p-4 flex flex-col items-center flex-shrink-0 border border-[#e2e8f0] focus:outline-none hover:shadow-xl transition cursor-pointer"
-                onClick={() => setEventoSeleccionado(evento)}
-                aria-label={`Ver detalles de ${evento.nombre}`}
-                type="button"
+          <div className="relative overflow-hidden min-h-[20em]">
+            <div className="flex justify-center">
+              <div 
+                className="carousel-centered"
+                style={{
+                  transform: `translateX(calc(50% - ${eventoActivo * 280 + 140}px))`,
+                  transition: eventoActivo >= eventosProximos.length * 2 - 1 ? 'none' : 'transform 0.6s ease-in-out'
+                }}
               >
-                {evento.imagen ? (
-                  <img
-                    src={evento.imagen}
-                    alt={evento.nombre}
-                    className="w-40 h-40 object-cover rounded-lg mb-3 border"
-                  />
-                ) : (
-                  <div className="w-40 h-40 flex items-center justify-center bg-[#f1f5f9] rounded-lg mb-3 text-5xl">🎤</div>
-                )}
-                <div className="text-[#1e293b] font-bold text-lg mb-1 text-center">{evento.nombre}</div>
-                <div className="text-[#fbbf24] font-semibold text-base mb-1">
-                  {evento.fecha && new Date(evento.fecha).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' })}
-                </div>
-                {evento.descripcion && (
-                  <div className="text-[#64748b] text-sm text-center line-clamp-2">{evento.descripcion}</div>
-                )}
-              </button>
-            ))}
+                {/* Array duplicado para efecto infinito */}
+                {[...eventosProximos, ...eventosProximos].map((evento, index) => {
+                  const actualIndex = index % eventosProximos.length;
+                  const isCenter = index === eventoActivo;
+                  return (
+                    <div
+                      key={`${evento._id}-${index}`}
+                      className={`carousel-item flex-shrink-0 mx-2 transition-all duration-500 ${
+                        isCenter 
+                          ? 'scale-110 opacity-100 z-10' 
+                          : 'scale-95 opacity-60'
+                      }`}
+                    >
+                      <button
+                        className="w-[260px] bg-white rounded-xl shadow-lg p-4 flex flex-col items-center border border-[#e2e8f0] focus:outline-none hover:shadow-xl transition cursor-pointer"
+                        onClick={() => setEventoSeleccionado(evento)}
+                        aria-label={`Ver detalles de ${evento.nombre}`}
+                        type="button"
+                      >
+                        {evento.imagen ? (
+                          <img
+                            src={evento.imagen}
+                            alt={evento.nombre}
+                            className="w-40 h-40 object-cover rounded-lg mb-3 border"
+                          />
+                        ) : (
+                          <div className="w-40 h-40 flex items-center justify-center bg-[#f1f5f9] rounded-lg mb-3 text-5xl">🎤</div>
+                        )}
+                        <div className="text-[#1e293b] font-bold text-lg mb-1 text-center">{evento.nombre}</div>
+                        <div className="text-[#fbbf24] font-semibold text-base mb-1">
+                          {evento.fecha && new Date(evento.fecha).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                        </div>
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         )}
 
