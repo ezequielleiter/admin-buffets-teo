@@ -32,12 +32,6 @@ function DashboardContent() {
           <h1 className="text-3xl font-bold text-text-primary mb-2">
             Bienvenido de nuevo, {buffets.length > 0 ? buffets[0].nombre : (user?.name || 'Administrador')}
           </h1>
-          <p className="text-text-secondary">
-            {buffets.length > 0 
-              ? `Gestiona tu buffet ${buffets[0].nombre} ubicado en ${buffets[0].lugar}` 
-              : 'Aquí tienes el resumen de lo que está pasando hoy con tus buffets.'
-            }
-          </p>
         </div>
 
         {/* Stats Grid */}
@@ -108,7 +102,7 @@ function DashboardContent() {
           </div>
 
           {/* Quick Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
             <a 
               href="/dashboard/eventos"
               className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow group"
@@ -153,6 +147,42 @@ function DashboardContent() {
                 </div>
               </div>
             </a>
+
+            {buffets.length > 0 && (
+              <a 
+                href={`/buffet-presentacion/${buffets[0]._id}`}
+                target="_blank"
+                className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow group"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="bg-purple-600/10 p-3 rounded-lg text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                    <span className="material-symbols-outlined">slideshow</span>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-text-primary">Presentación</h3>
+                    <p className="text-text-secondary text-sm">Ver pantalla de presentación</p>
+                  </div>
+                </div>
+              </a>
+            )}
+
+            {buffets.length > 0 && (
+              <a 
+                href={`/buffet-menu/${buffets[0]._id}`}
+                target="_blank"
+                className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow group"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="bg-green-600/10 p-3 rounded-lg text-green-600 group-hover:bg-green-600 group-hover:text-white transition-colors">
+                    <span className="material-symbols-outlined">restaurant_menu</span>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-text-primary">Menú</h3>
+                    <p className="text-text-secondary text-sm">Ver menú del buffet</p>
+                  </div>
+                </div>
+              </a>
+            )}
           </div>
 
           {/* Recent Activity */}
