@@ -221,7 +221,14 @@ function EventosContent() {
                             className="px-2 md:px-3 py-1 md:py-2 bg-accent-orange text-white text-xs md:text-sm font-medium rounded-lg hover:bg-accent-blue transition-colors flex items-center gap-1 min-h-[36px]"
                           >
                             <span className="material-symbols-outlined text-sm md:text-base">storefront</span>
-                            <span className="">Ir al ordenes</span>
+                            <span className="">Ir ordenes</span>
+                          </button>
+                          <button
+                            onClick={() => window.open(`/dashboard/eventos/reporte/${evento._id}`, '_blank')}
+                            className="px-2 md:px-3 py-1 md:py-2 bg-primary text-white text-xs md:text-sm font-medium rounded-lg hover:bg-accent-blue transition-colors flex items-center gap-1 min-h-[36px]"
+                          >
+                            <span className="material-symbols-outlined text-sm md:text-base">bar_chart</span>
+                            <span className="">Reporte</span>
                           </button>
                           <button 
                             onClick={() => handleEditEvento(evento)}
