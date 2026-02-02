@@ -47,6 +47,16 @@ interface Evento {
   };
 }
 
+interface Banner {
+  _id: string;
+  buffet_id: string;
+  color: string;
+  mensaje: string;
+  fechaCreacion: string;
+  fechaActualizacion: string;
+  user_id: string;
+}
+
 export default function BuffetPresentacionPage() {
   const params = useParams();
   const buffetId = params.buffetId as string;
@@ -55,11 +65,13 @@ export default function BuffetPresentacionPage() {
   const [productos, setProductos] = useState<Producto[]>([]);
   const [promos, setPromos] = useState<Promo[]>([]);
   const [eventos, setEventos] = useState<Evento[]>([]);
+  const [banners, setBanners] = useState<Banner[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [currentSection, setCurrentSection] = useState<'menu' | 'promos'>('menu');
   const [currentEventoIndex, setCurrentEventoIndex] = useState(0);
+  const [bannerActivo, setBannerActivo] = useState(0);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
 
   // Auto-rotación de secciones derecha (menu y promos)
@@ -85,6 +97,17 @@ export default function BuffetPresentacionPage() {
       return () => clearInterval(eventoRotation);
     }
   }, [eventos]);
+
+  // Carrusel automático para banners
+  useEffect(() => {
+    if (banners.length <= 1) return;
+    
+    const interval = setInterval(() => {
+      setBannerActivo((prev) => (prev + 1) % banners.length);
+    }, 10000); // Cambia cada 10 segundos
+
+    return () => clearInterval(interval);
+  }, [banners.length]);
 
   // Reloj en tiempo real
   useEffect(() => {
@@ -135,6 +158,7 @@ export default function BuffetPresentacionPage() {
           setProductos(data.productos || []);
           setPromos(data.promos || []);
           setEventos(data.eventos || []);
+          setBanners(data.banners || []);
         } else {
           setError('Error al cargar el buffet');
         }
@@ -215,6 +239,21 @@ export default function BuffetPresentacionPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 text-white relative overflow-hidden">
+      {/* Banner fijo superior */}
+      {banners.length > 0 && (
+        <div className="fixed top-0 left-0 right-0 z-50">
+          <div 
+            className="w-full py-3 transition-all duration-1000 ease-in-out shadow-lg"
+            style={{ backgroundColor: banners[bannerActivo]?.color || '#fbbf24' }}
+          >
+            <div className="max-w-6xl mx-auto">
+              <p className="text-white font-bold text-lg md:text-xl text-center drop-shadow-lg">
+                {banners[bannerActivo]?.mensaje}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Elementos de fondo animados */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/20 rounded-full animate-pulse"></div>
@@ -271,7 +310,7 @@ export default function BuffetPresentacionPage() {
         {/* Lado derecho - Menú y Promociones */}
         <div className="w-1/2 flex flex-col p-12 bg-gradient-to-br from-green-900/30 to-blue-900/30 backdrop-blur-sm relative">
           {/* Contenido que rota */}
-          <div className="flex-1 flex flex-col justify-center h-full">
+          <div className="flex-1 flex flex-col justify-center h-full pt-12">
             {currentSection === 'menu' && productosDisponibles.length > 0 && (
               <section className="animate-fadeIn h-full flex flex-col">
                 <h2 className="text-4xl font-bold text-center mb-8 bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">

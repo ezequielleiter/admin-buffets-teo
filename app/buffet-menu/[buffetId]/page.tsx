@@ -47,6 +47,16 @@ interface Evento {
   };
 }
 
+interface Banner {
+  _id: string;
+  buffet_id: string;
+  color: string;
+  mensaje: string;
+  fechaCreacion: string;
+  fechaActualizacion: string;
+  user_id: string;
+}
+
 function getGoogleCalendarUrl(evento: Evento) {
   const start = new Date(evento.fecha);
   const end = new Date(start.getTime() + 2 * 60 * 60 * 1000);
@@ -66,9 +76,11 @@ export default function BuffetMenuPage() {
   const [productos, setProductos] = useState<Producto[]>([]);
   const [promos, setPromos] = useState<Promo[]>([]);
   const [eventos, setEventos] = useState<Evento[]>([]);
+  const [banners, setBanners] = useState<Banner[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [eventoSeleccionado, setEventoSeleccionado] = useState<Evento | null>(null);
+  const [bannerActivo, setBannerActivo] = useState(0);
 
   useEffect(() => {
     const fetchBuffet = async () => {
@@ -86,6 +98,9 @@ export default function BuffetMenuPage() {
           setProductos(data.productos || []);
           setPromos(data.promos || []);
           setEventos(data.eventos || []);
+          console.log(data);
+          
+          setBanners(data.banners || []);
         } else {
           setError('Error al cargar el buffet');
         }
@@ -101,6 +116,17 @@ export default function BuffetMenuPage() {
     // eslint-disable-next-line
     // No returns here, solo fetch y setState
   }, [buffetId]);
+
+  // Carrusel automático para banners
+  useEffect(() => {
+    if (banners.length <= 1) return;
+    
+    const interval = setInterval(() => {
+      setBannerActivo((prev) => (prev + 1) % banners.length);
+    }, 10000); // Cambia cada 10 segundos
+
+    return () => clearInterval(interval);
+  }, [banners.length]);
 
   // Colores sugeridos para la landing
   // Primario: #1e293b (azul oscuro)
@@ -151,6 +177,28 @@ export default function BuffetMenuPage() {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] flex flex-col">
+      <style jsx>{`
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        @keyframes fade-in {
+          from {
+            opacity: 0;
+            transform: scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+        .animate-fade-in {
+          animation: fade-in 0.2s ease-out;
+        }
+      `}</style>
       {/* Header con logo, nombre y redes */}
       <header className="bg-gradient-to-r from-[#1e293b] to-[#334155] text-white py-8 px-4 flex flex-col items-center">
         {buffet.logo && (
@@ -284,6 +332,22 @@ export default function BuffetMenuPage() {
           </div>
         )}
       </section>
+
+      {/* Banner de anuncios */}
+      {banners.length > 0 && (
+        <section className="w-full mt-6">
+          <div 
+            className="w-full py-4 px-4 transition-all duration-1000 ease-in-out"
+            style={{ backgroundColor: banners[bannerActivo]?.color || '#fbbf24' }}
+          >
+            <div className="max-w-4xl mx-auto">
+              <p className="text-white font-bold text-lg md:text-xl text-center drop-shadow-lg">
+                {banners[bannerActivo]?.mensaje}
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Menú de productos */}
       <section className="w-full max-w-3xl mx-auto mt-10 px-2">

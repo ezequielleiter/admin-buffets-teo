@@ -38,7 +38,7 @@ export default function BannerForm({ onSubmit, onCancel, isSubmitting = false, b
   const validateForm = (): boolean => {
     const newErrors: BannerFormErrors = {};
 
-    if (!formData.mensaje.trim()) {
+    if (!formData.mensaje || !formData.mensaje.trim()) {
       newErrors.mensaje = 'El mensaje es requerido';
     }
 
@@ -72,7 +72,8 @@ export default function BannerForm({ onSubmit, onCancel, isSubmitting = false, b
 
   const handleInputChange = (field: keyof CreateBannerData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    if (errors[field]) {
+    // Solo limpiar errores para campos que existen en BannerFormErrors
+    if (field !== 'buffet_id' && errors[field as keyof BannerFormErrors]) {
       setErrors(prev => ({ ...prev, [field]: undefined }));
     }
   };
@@ -161,8 +162,8 @@ export default function BannerForm({ onSubmit, onCancel, isSubmitting = false, b
             <div 
               className="w-full px-4 py-3 rounded-lg text-center font-medium text-sm"
               style={{ 
-                backgroundColor: formData.color,
-                color: getContrastColor(formData.color)
+                backgroundColor: formData.color || '#000000',
+                color: getContrastColor(formData.color || '#000000')
               }}
             >
               {formData.mensaje || 'Mensaje del banner...'}
