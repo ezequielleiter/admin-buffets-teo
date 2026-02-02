@@ -18,6 +18,7 @@ interface CartItem {
   precio: number;
   cantidad: number;
   descripcion: string;
+  imagen?: string;
 }
 
 function EventPanelContent() {
@@ -30,6 +31,14 @@ function EventPanelContent() {
   const [evento, setEvento] = useState<Evento | null>(null);
   const [loadingEvento, setLoadingEvento] = useState(true);
   const [errorEvento, setErrorEvento] = useState<string | null>(null);
+  
+  // Estados para el sistema de pestañas
+  const [currentView, setCurrentView] = useState<'productos' | 'ordenes'>('productos');
+  const [ordenes, setOrdenes] = useState<any[]>([]);
+  const [loadingOrdenes, setLoadingOrdenes] = useState(false);
+  
+  // Estados para editar orden
+  const [editingOrder, setEditingOrder] = useState<any | null>(null);
   
   const { productos, loading: productosLoading } = useBuffetProductos(evento?.buffet_id || '');
   const { promos, loading: promosLoading } = useBuffetPromos(evento?.buffet_id || '');
@@ -77,6 +86,63 @@ function EventPanelContent() {
     }
   }, [eventoId]);
 
+  // Función para cargar órdenes
+  const fetchOrdenes = async () => {
+    try {
+      setLoadingOrdenes(true);
+      const response = await teoAuth.authenticatedRequest(`/api/admin-buffets/ordenes?evento_id=${eventoId}`);
+      if (!response.ok) throw new Error('Error al cargar órdenes');
+      const data = await response.json();
+      setOrdenes(data.ordenes || []);
+    } catch (error) {
+      console.error('Error loading orders:', error);
+      alert('Error al cargar las órdenes');
+    } finally {
+      setLoadingOrdenes(false);
+    }
+  };
+
+  // Función para cambiar a vista de órdenes
+  const handleShowOrders = () => {
+    setCurrentView('ordenes');
+    if (ordenes.length === 0) {
+      fetchOrdenes();
+    }
+  };
+
+  // Función para volver a vista de productos
+  const handleShowProducts = () => {
+    setCurrentView('productos');
+  };
+
+  // Función para cargar orden en el carrito para editar
+  const loadOrderForEdit = (orden: any) => {
+    setEditingOrder(orden);
+    setClienteNombre(orden.cliente_nombre);
+    setClienteNota(orden.nota || '');
+    setMetodoPago(orden.forma_pago);
+    
+    // Convertir productos de la orden al formato del carrito usando productosExpandidos
+    const cartItems: CartItem[] = orden.productosExpandidos?.map((item: any) => ({
+      id: item.id,
+      tipo: item.tipo,
+      nombre: item.nombre,
+      precio: item.precio_unitario,
+      cantidad: item.cantidad,
+      descripcion: item.tipo === 'producto' ? 'Producto' : 'Promoción especial',
+      imagen: item.imagen
+    })) || [];
+    
+    setCart(cartItems);
+    setCurrentView('productos');
+  };
+
+  // Función para cancelar edición
+  const cancelEdit = () => {
+    setEditingOrder(null);
+    clearCart();
+  };
+
   // Filtrar productos y promos por búsqueda
   const filteredItems = useMemo(() => {
     const allItems: Array<(Producto | Promo) & { type: 'producto' | 'promo' }> = [
@@ -115,7 +181,8 @@ function EventPanelContent() {
         nombre: item.nombre,
         precio: item.valor,
         cantidad: 1,
-        descripcion: 'descripcion' in item ? item.descripcion : 'Promoción especial'
+        descripcion: 'descripcion' in item ? item.descripcion : 'Promoción especial',
+        imagen: 'imagen' in item ? item.imagen : undefined
       }];
     });
   };
@@ -173,17 +240,53 @@ function EventPanelContent() {
     };
 
     try {
-      const orden = await createOrden(ordenData);
-      if (orden) {
-        alert('Venta realizada exitosamente');
-        clearCart();
-        setClienteNombre(''); // Limpiar el nombre después de la venta
-        setClienteNota(''); // Limpiar la nota después de la venta
+      let orden: any;
+      if (editingOrder) {
+        // Actualizar orden existente
+        const response = await teoAuth.authenticatedRequest(
+          `/api/admin-buffets/ordenes/${editingOrder._id}`,
+          {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(ordenData)
+          }
+        );
+        if (response.ok) {
+          orden = await response.json();
+          // Asegurar que la orden actualizada mantenga todas las propiedades necesarias
+          const ordenCompleta = {
+            ...editingOrder,
+            ...orden,
+            estado: orden.estado || 'pendiente'
+          };
+          // Actualizar la orden en la lista local
+          setOrdenes(prev => prev.map(o => o._id === editingOrder._id ? ordenCompleta : o));
+          alert('Orden actualizada exitosamente');
+        } else {
+          throw new Error('Error al actualizar la orden');
+        }
       } else {
-        alert('Error al procesar la venta');
+        // Crear nueva orden
+        orden = await createOrden(ordenData);
+        if (orden) {
+          alert('Venta realizada exitosamente');
+          // Actualizar lista de órdenes si está cargada
+          if (ordenes.length > 0) {
+            setOrdenes(prev => [orden, ...prev]);
+          }
+        } else {
+          alert('Error al procesar la venta');
+          return;
+        }
       }
+      
+      // Limpiar carrito y estado de edición
+      clearCart();
+      setEditingOrder(null);
+      setClienteNombre('');
+      setClienteNota('');
     } catch (error) {
-      alert('Error al procesar la venta');
+      alert(editingOrder ? 'Error al actualizar la orden' : 'Error al procesar la venta');
       console.error('Error:', error);
     }
   };
@@ -232,6 +335,30 @@ function EventPanelContent() {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
+          <div className="flex gap-2">
+            <button 
+              onClick={handleShowProducts}
+              className={`flex items-center justify-center p-3 rounded-xl border transition-colors ${
+                currentView === 'productos' 
+                  ? 'border-primary bg-primary text-white' 
+                  : 'border-gray-200 bg-white text-text-secondary hover:bg-gray-50'
+              }`}
+              title="Ver Productos"
+            >
+              <span className="material-symbols-outlined text-[20px]">inventory_2</span>
+            </button>
+            <button 
+              onClick={handleShowOrders}
+              className={`flex items-center justify-center p-3 rounded-xl border transition-colors ${
+                currentView === 'ordenes' 
+                  ? 'border-primary bg-primary text-white' 
+                  : 'border-gray-200 bg-white text-text-secondary hover:bg-gray-50'
+              }`}
+              title="Ver Órdenes"
+            >
+              <span className="material-symbols-outlined text-[20px]">receipt_long</span>
+            </button>
+          </div>
           <button 
             onClick={() => window.close()}
             className="flex items-center justify-center p-3 rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors text-text-secondary bg-white"
@@ -260,6 +387,30 @@ function EventPanelContent() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
+              <div className="flex gap-2">
+                <button 
+                  onClick={handleShowProducts}
+                  className={`flex items-center justify-center p-3 rounded-xl border transition-colors ${
+                    currentView === 'productos' 
+                      ? 'border-primary bg-primary text-white' 
+                      : 'border-gray-200 bg-white text-text-secondary hover:bg-gray-50'
+                  }`}
+                  title="Ver Productos"
+                >
+                  <span className="material-symbols-outlined text-[20px] sm:text-[24px]">inventory_2</span>
+                </button>
+                <button 
+                  onClick={handleShowOrders}
+                  className={`flex items-center justify-center p-3 rounded-xl border transition-colors ${
+                    currentView === 'ordenes' 
+                      ? 'border-primary bg-primary text-white' 
+                      : 'border-gray-200 bg-white text-text-secondary hover:bg-gray-50'
+                  }`}
+                  title="Ver Órdenes"
+                >
+                  <span className="material-symbols-outlined text-[20px] sm:text-[24px]">receipt_long</span>
+                </button>
+              </div>
               <button 
                 onClick={() => window.close()}
                 className="flex items-center justify-center p-3 rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors text-text-secondary bg-white"
@@ -270,83 +421,198 @@ function EventPanelContent() {
             </div>
           </div>
 
-          {/* Grid de productos con padding top en móvil para el header fijo */}
+          {/* Grid de productos o lista de órdenes con padding top en móvil para el header fijo */}
           <div className="flex-1 overflow-y-auto p-3 sm:p-6 pt-[100px] sm:pt-3 pb-[80px] sm:pb-3">
-            {productosLoading || promosLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-              </div>
-            ) : filteredItems.length === 0 ? (
-              <div className="text-center py-12">
-                <span className="material-symbols-outlined text-6xl text-text-secondary mb-4">inventory</span>
-                <p className="text-text-secondary text-lg mb-2">
-                  {searchQuery ? 'No se encontraron productos' : 'No hay productos disponibles'}
-                </p>
-                <p className="text-sm text-text-secondary">
-                  {searchQuery ? 'Intenta con otra búsqueda' : 'Agrega productos al buffet desde el panel de administración'}
-                </p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-                {filteredItems.map((item) => (
-                  <div 
-                    key={`${item.type}-${item._id}`}
-                    onClick={() => addToCart(item, item.type)}
-                    className="bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer border border-gray-200 hover:shadow-md active:scale-95 transition-all"
-                  >
-                    <div className="h-20 sm:h-24 bg-center bg-no-repeat bg-cover relative" style={{backgroundImage: `url('https://images.unsplash.com/photo-${item.type === 'producto' ? '1567620905586-95b68e8bf377' : '1567620905778-4d6c1c7a31b1'}?w=400&h=300&fit=crop')`}}>
-                      <span className="absolute top-1 right-1 bg-primary text-white text-xs font-bold px-2 py-1 rounded-lg shadow-sm">
-                        ${item.valor.toFixed(0)}
-                      </span>
-                      {item.type === 'promo' && (
-                        <span className="absolute top-1 left-1 bg-accent-orange text-white text-xs font-bold px-2 py-1 rounded-lg shadow-sm">
-                          PROMO
+            {currentView === 'productos' ? (
+              // Vista de productos
+              productosLoading || promosLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              ) : filteredItems.length === 0 ? (
+                <div className="text-center py-12">
+                  <span className="material-symbols-outlined text-6xl text-text-secondary mb-4">inventory</span>
+                  <p className="text-text-secondary text-lg mb-2">
+                    {searchQuery ? 'No se encontraron productos' : 'No hay productos disponibles'}
+                  </p>
+                  <p className="text-sm text-text-secondary">
+                    {searchQuery ? 'Intenta con otra búsqueda' : 'Agrega productos al buffet desde el panel de administración'}
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+                  {filteredItems.map((item) => (
+                    <div 
+                      key={`${item.type}-${item._id}`}
+                      onClick={() => addToCart(item, item.type)}
+                      className="bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer border border-gray-200 hover:shadow-md active:scale-95 transition-all"
+                    >
+                      <div className="h-20 sm:h-24 bg-center bg-no-repeat bg-cover relative" style={{backgroundImage: `url('${('imagen' in item ? item.imagen : null) || `https://images.unsplash.com/photo-${item.type === 'producto' ? '1567620905586-95b68e8bf377' : '1567620905778-4d6c1c7a31b1'}?w=400&h=300&fit=crop`}')`}}>
+                        <span className="absolute top-1 right-1 bg-primary text-white text-xs font-bold px-2 py-1 rounded-lg shadow-sm">
+                          ${item.valor.toFixed(0)}
                         </span>
+                        {item.type === 'promo' && (
+                          <span className="absolute top-1 left-1 bg-accent-orange text-white text-xs font-bold px-2 py-1 rounded-lg shadow-sm">
+                            PROMO
+                          </span>
+                        )}
+                      </div>
+                      <div className="p-3">
+                        <h3 className="text-text-primary font-bold text-sm mb-1 truncate">{item.nombre}</h3>
+                        <p className="text-text-secondary text-xs leading-tight line-clamp-2">
+                          {'descripcion' in item && item.descripcion ? item.descripcion : 'Promoción especial'}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )
+            ) : (
+              // Vista de órdenes
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-bold text-text-primary">Órdenes del Evento</h2>
+                  <button
+                    onClick={fetchOrdenes}
+                    className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">refresh</span>
+                    Actualizar
+                  </button>
+                </div>
+
+                {loadingOrdenes ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                ) : ordenes.length === 0 ? (
+                  <div className="text-center py-12">
+                    <span className="material-symbols-outlined text-6xl text-text-secondary mb-4">receipt</span>
+                    <p className="text-text-secondary text-lg mb-2">No hay órdenes</p>
+                    <p className="text-sm text-text-secondary">Las órdenes creadas aparecerán aquí</p>
+                  </div>
+                ) : (
+                  ordenes.map((orden) => (
+                    <div key={orden._id} className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <h3 className="font-bold text-text-primary">{orden.cliente_nombre}</h3>
+                          <p className="text-sm text-text-secondary">
+                            {new Date(orden.fechaCreacion).toLocaleString('es-ES')}
+                          </p>
+                        </div>
+                        <div className="text-right flex items-center gap-2">
+                          <div>
+                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                              orden.estado === 'pendiente' 
+                                ? 'bg-yellow-100 text-yellow-800'
+                                : orden.estado === 'entregado'
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-red-100 text-red-800'
+                            }`}>
+                              {orden.estado ? (orden.estado.charAt(0).toUpperCase() + orden.estado.slice(1)) : 'Pendiente'}
+                            </span>
+                            <p className="font-bold text-lg text-primary mt-1">${orden.total.toFixed(0)}</p>
+                          </div>
+                          {/* Botón de editar */}
+                          <button
+                            onClick={() => loadOrderForEdit(orden)}
+                            className="p-2 rounded-lg border border-primary text-primary hover:bg-primary hover:text-white transition-colors"
+                            title="Editar orden"
+                          >
+                            <span className="material-symbols-outlined text-[20px]">edit</span>
+                          </button>
+                        </div>
+                      </div>
+                      
+                      {/* Lista de productos */}
+                      <div className="space-y-2 mb-3">
+                        {orden.productosExpandidos?.map((item: any, index: number) => (
+                          <div key={index} className="flex justify-between items-center text-sm">
+                            <span className="text-text-primary">
+                              {item.cantidad}x {item.nombre}
+                            </span>
+                            <span className="text-text-secondary">
+                              ${(item.precio_unitario * item.cantidad).toFixed(0)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Método de pago */}
+                      <div className="flex items-center gap-2 text-sm text-text-secondary">
+                        <span className="material-symbols-outlined text-[16px]">
+                          {orden.forma_pago === 'efectivo' ? 'payments' : 'account_balance'}
+                        </span>
+                        <span>{orden.forma_pago === 'efectivo' ? 'Efectivo' : 'Transferencia'}</span>
+                      </div>
+
+                      {/* Nota si existe */}
+                      {orden.nota && (
+                        <div className="mt-2 p-2 bg-blue-50 rounded text-sm text-blue-800">
+                          <strong>Nota:</strong> {orden.nota}
+                        </div>
                       )}
                     </div>
-                    <div className="p-3">
-                      <h3 className="text-text-primary font-bold text-sm mb-1 truncate">{item.nombre}</h3>
-                      <p className="text-text-secondary text-xs leading-tight line-clamp-2">
-                        {'descripcion' in item && item.descripcion ? item.descripcion : 'Promoción especial'}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             )}
           </div>
         </div>
 
-        {/* Panel del carrito - Responsive */}
-        <aside className="w-full sm:w-[380px] lg:w-[420px] flex flex-col bg-white sm:border-l border-t sm:border-t-0 border-gray-200 shadow-lg relative">
-          {/* Vista comprimida del carrito en móvil - Fijo en la parte inferior */}
-          <div className={`sm:hidden fixed bottom-0 left-0 right-0 z-30 ${cartExpanded ? 'hidden' : 'block'}`}>
+        {/* Panel del carrito - Responsive - Solo visible en vista de productos */}
+        {currentView === 'productos' && (
+          <aside className="w-full sm:w-[380px] lg:w-[420px] flex flex-col bg-white sm:border-l border-t sm:border-t-0 border-gray-200 shadow-lg relative">
+          {/* Vista comprimida del carrito en móvil - Fijo en la parte inferior - Solo en vista de productos */}
+          {currentView === 'productos' && (
+            <div className={`sm:hidden fixed bottom-0 left-0 right-0 z-30 ${cartExpanded ? 'hidden' : 'block'}`}>
             <button
               onClick={() => setCartExpanded(true)}
               className="w-full p-4 bg-primary text-white flex items-center justify-between hover:bg-primary/90 transition-colors shadow-lg"
             >
               <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined">shopping_cart</span>
-                <span className="font-bold">Carrito</span>
+                <span className="material-symbols-outlined">{editingOrder ? 'edit' : 'shopping_cart'}</span>
+                <span className="font-bold">{editingOrder ? 'Editando' : 'Carrito'}</span>
                 {cart.length > 0 && (
                   <span className="bg-white text-primary text-xs font-bold px-2 py-1 rounded-full">
                     {cart.length}
                   </span>
                 )}
+                {editingOrder && (
+                  <span className="text-xs opacity-90">({editingOrder.cliente_nombre})</span>
+                )}
               </div>
               <div className="text-right">
                 <div className="font-bold text-lg">${cartTotal.toFixed(0)}</div>
-                <div className="text-xs opacity-90">Ver detalles</div>
+                <div className="text-xs opacity-90">{editingOrder ? 'Ver edición' : 'Ver detalles'}</div>
               </div>
             </button>
           </div>
+          )}
 
           {/* Vista expandida del carrito - Modal en móvil */}
           <div className={`${cartExpanded ? 'fixed inset-0 z-40 bg-white sm:relative sm:inset-auto sm:z-auto' : 'hidden'} sm:flex flex-col h-full`}>
             {/* Header del carrito expandido en móvil */}
             <div className="sm:hidden flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
-              <h2 className="font-bold text-lg text-text-primary">Carrito</h2>
+              <div>
+                <h2 className="font-bold text-lg text-text-primary">
+                  {editingOrder ? 'Editando Orden' : 'Carrito'}
+                </h2>
+                {editingOrder && (
+                  <p className="text-xs text-blue-600">Orden de {editingOrder.cliente_nombre}</p>
+                )}
+              </div>
               <div className="flex items-center gap-2">
+                {editingOrder && (
+                  <button
+                    onClick={cancelEdit}
+                    className="p-1 hover:bg-red-100 rounded-full transition-colors text-red-600"
+                    title="Cancelar edición"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">close</span>
+                  </button>
+                )}
                 <span className="bg-primary text-white text-xs font-bold px-2 py-1 rounded-lg">
                   {cart.length}
                 </span>
@@ -370,7 +636,7 @@ function EventPanelContent() {
               ) : (
                 cart.map((item) => (
                   <div key={`${item.tipo}-${item.id}`} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-center bg-cover flex-shrink-0" style={{backgroundImage: `url('https://images.unsplash.com/photo-${item.tipo === 'producto' ? '1567620905586-95b68e8bf377' : '1567620905778-4d6c1c7a31b1'}?w=100&h=100&fit=crop')`}}></div>
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-center bg-cover flex-shrink-0" style={{backgroundImage: `url('${item.imagen || `https://images.unsplash.com/photo-${item.tipo === 'producto' ? '1567620905586-95b68e8bf377' : '1567620905778-4d6c1c7a31b1'}?w=100&h=100&fit=crop`}')`}}></div>
                     <div className="flex-1 min-w-0">
                       <h4 className="text-xs sm:text-sm font-bold truncate text-text-primary">{item.nombre}</h4>
                       <p className="text-xs text-text-secondary">${item.precio.toFixed(0)} c/u</p>
@@ -406,6 +672,19 @@ function EventPanelContent() {
 
             {/* Panel de checkout */}
             <div className="p-3 sm:p-4 bg-gray-50 border-t border-gray-200 space-y-3 sm:space-y-4">
+              {/* Indicador de edición */}
+              {editingOrder && (
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 mb-4">
+                  <div className="flex items-center gap-2 text-blue-800">
+                    <span className="material-symbols-outlined text-[20px]">edit</span>
+                    <div>
+                      <p className="font-bold text-sm">Editando Orden</p>
+                      <p className="text-xs">Cliente: {editingOrder.cliente_nombre}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Nombre del cliente */}
               <div className="space-y-2 sm:space-y-3">
                 <h3 className="text-xs sm:text-sm font-bold text-text-primary">Nombre del Cliente *</h3>
@@ -474,7 +753,16 @@ function EventPanelContent() {
 
               {/* Botones de acción */}
               <div className="flex flex-col gap-2">
-                {cart.length > 0 && (
+                {editingOrder && (
+                  <button 
+                    onClick={cancelEdit}
+                    className="w-full bg-red-100 hover:bg-red-200 text-red-700 font-medium py-2 rounded-xl transition-colors text-sm flex items-center justify-center gap-2"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">close</span>
+                    Cancelar Edición
+                  </button>
+                )}
+                {cart.length > 0 && !editingOrder && (
                   <button 
                     onClick={clearCart}
                     className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 rounded-xl transition-colors text-sm"
@@ -491,8 +779,10 @@ function EventPanelContent() {
                     <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   ) : (
                     <>
-                      <span className="material-symbols-outlined text-[18px] sm:text-[20px]">payments</span>
-                      Finalizar Venta
+                      <span className="material-symbols-outlined text-[18px] sm:text-[20px]">
+                        {editingOrder ? 'save' : 'payments'}
+                      </span>
+                      {editingOrder ? 'Actualizar Orden' : 'Finalizar Venta'}
                     </>
                   )}
                 </button>
@@ -500,6 +790,7 @@ function EventPanelContent() {
             </div>
           </div>
         </aside>
+        )}
       </main>
     </div>
   );
