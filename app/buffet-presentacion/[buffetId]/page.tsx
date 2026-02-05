@@ -73,7 +73,7 @@ export default function BuffetPresentacionPage() {
   const [currentEventoIndex, setCurrentEventoIndex] = useState(0);
   const [bannerActivo, setBannerActivo] = useState(0);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
-
+  
   // Auto-rotación de secciones derecha (menu y promos)
   useEffect(() => {
     const sectionRotation = setInterval(() => {
@@ -180,7 +180,6 @@ export default function BuffetPresentacionPage() {
   const eventosProximos = (eventos || [])
     .filter(e => e.fecha && new Date(e.fecha) >= new Date())
     .sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime())
-    .slice(0, 3);
 
   if (loading) {
     return (
@@ -208,21 +207,6 @@ export default function BuffetPresentacionPage() {
     );
   }
 
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('es-AR', { 
-      hour: '2-digit', 
-      minute: '2-digit'
-    });
-  };
-
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString('es-AR', { 
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long'
-    });
-  };
-
   const formatEventDate = (dateString: string) => {
     const date = new Date(dateString);
     return {
@@ -239,11 +223,11 @@ export default function BuffetPresentacionPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 text-white relative overflow-hidden">
-      {/* Banner fijo superior */}
+      {/* Banner superior */}
       {banners.length > 0 && (
-        <div className="fixed top-0 left-0 right-0 z-50">
+        <div className="w-full relative z-50">
           <div 
-            className="w-full py-3 transition-all duration-1000 ease-in-out shadow-lg"
+            className="w-full py-4 transition-all duration-1000 ease-in-out shadow-lg"
             style={{ backgroundColor: banners[bannerActivo]?.color || '#fbbf24' }}
           >
             <div className="max-w-6xl mx-auto">
@@ -254,52 +238,59 @@ export default function BuffetPresentacionPage() {
           </div>
         </div>
       )}
+
       {/* Elementos de fondo animados */}
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden z-0">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/20 rounded-full animate-pulse"></div>
         <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-blue-500/20 rounded-full animate-pulse delay-300"></div>
         <div className="absolute top-1/2 left-1/3 w-48 h-48 bg-pink-500/10 rounded-full animate-pulse delay-700"></div>
       </div>
 
       {/* Layout principal dividido en dos */}
-      <div className="min-h-screen flex relative z-10">
+      <div className={`flex relative z-10 ${banners.length > 0 ? 'h-[calc(100vh-60px)]' : 'min-h-screen'}`}>
         {/* Lado izquierdo - Eventos */}
-        <div className="w-1/2 flex flex-col justify-center items-center p-12 bg-gradient-to-br from-purple-900/30 to-pink-900/30 backdrop-blur-sm border-r border-white/10">
+        <div className="w-1/2 flex flex-col bg-gradient-to-br from-purple-900/30 to-pink-900/30 backdrop-blur-sm border-r border-white/10">
           {eventosProximos.length === 0 ? (
-            <div className="text-center">
+            <div className="flex flex-col justify-center items-center h-full p-12 text-center">
               <div className="text-8xl mb-8 animate-float">🎤</div>
               <h2 className="text-4xl font-bold text-purple-300 mb-4">Próximamente</h2>
               <p className="text-2xl text-gray-300">Nuevos eventos se anunciarán pronto</p>
             </div>
           ) : (
-            <div className="text-center animate-fadeIn">
+            <div className="h-full flex flex-col animate-fadeIn">
               {eventosProximos[currentEventoIndex] && (
                 <>
-                  {/* Imagen del evento */}
-                  {eventosProximos[currentEventoIndex].imagen && (
-                    <div className="w-100 mx-auto mb-8">
+                  {/* Imagen del evento - 70% superior */}
+                  <div className="h-[70%] relative">
+                    {eventosProximos[currentEventoIndex].imagen ? (
                       <Image
                         src={eventosProximos[currentEventoIndex].imagen}
                         alt={eventosProximos[currentEventoIndex].nombre}
-                        width={500}
-                        height={200}
-                        className="w-full h-[450px] object-fill rounded-3xl shadow-2xl animate-glow"
+                        fill
+                        className="object-cover animate-glow rounded-b-3xl"
                         priority
                       />
-                    </div>
-                  )}
-
-                  {/* Nombre del evento */}
-                  <h2 className="text-5xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-6 leading-tight">
-                    {eventosProximos[currentEventoIndex].nombre}
-                  </h2>
-
-                  {/* Fecha del evento */}
-                  <div className="text-4xl font-semibold text-yellow-400 mb-2">
-                    {formatEventDate(eventosProximos[currentEventoIndex].fecha).date}
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-600 to-pink-600 rounded-b-3xl">
+                        <div className="text-8xl animate-float">🎤</div>
+                      </div>
+                    )}
                   </div>
-                  <div className="text-3xl text-purple-300">
-                    {formatEventDate(eventosProximos[currentEventoIndex].fecha).time}
+
+                  {/* Texto del evento - 30% inferior */}
+                  <div className="h-[30%] flex flex-col justify-center items-center p-6 text-center">
+                    {/* Nombre del evento */}
+                    <h2 className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-4 leading-tight">
+                      {eventosProximos[currentEventoIndex].nombre}
+                    </h2>
+
+                    {/* Fecha del evento */}
+                    <div className="text-3xl font-semibold text-yellow-400 mb-1">
+                      {formatEventDate(eventosProximos[currentEventoIndex].fecha).date}
+                    </div>
+                    <div className="text-2xl text-purple-300">
+                      {formatEventDate(eventosProximos[currentEventoIndex].fecha).time}
+                    </div>
                   </div>
                 </>
               )}
@@ -308,9 +299,9 @@ export default function BuffetPresentacionPage() {
         </div>
 
         {/* Lado derecho - Menú y Promociones */}
-        <div className="w-1/2 flex flex-col p-12 bg-gradient-to-br from-green-900/30 to-blue-900/30 backdrop-blur-sm relative">
+        <div className="w-1/2 flex flex-col p-12 bg-gradient-to-br from-green-900/30 to-blue-900/30 backdrop-blur-sm">
           {/* Contenido que rota */}
-          <div className="flex-1 flex flex-col justify-center h-full pt-12">
+          <div className="flex-1 flex flex-col justify-center">
             {currentSection === 'menu' && productosDisponibles.length > 0 && (
               <section className="animate-fadeIn h-full flex flex-col">
                 <h2 className="text-4xl font-bold text-center mb-8 bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
@@ -379,19 +370,19 @@ export default function BuffetPresentacionPage() {
             )}
           </div>
 
-          {/* QR Code Call to Action - Centrado en la parte inferior */}
+          {/* QR Code Footer - Debajo del menú */}
           {qrCodeUrl && (
-            <div className="absolute bottom-4 left-0 transform -translate-x-1/2 z-20">
-              <div className="bg-black/80 backdrop-blur-sm rounded-xl p-3 text-center border border-yellow-400/30 shadow-2xl max-w-[200px]">
-                <div className="mb-2 text-yellow-300 text-sm">
-                  <div className="font-semibold">Agenda eventos y mira el menú completo</div>
-                </div>
-                <div className="bg-white p-2 rounded-lg inline-block shadow-xl">
+            <div className="mt-8 pt-6 border-t border-white/20">
+              <div className="text-center">
+                <p className="text-yellow-400 text-xl mb-4 font-medium">
+                  Escanea para ver el menú completo y agendar eventos
+                </p>
+                <div className="bg-white p-2 rounded-lg inline-block">
                   <Image
                     src={qrCodeUrl}
                     alt="QR Code para acceder al menú desde móvil"
-                    width={120}
-                    height={120}
+                    width={100}
+                    height={100}
                     className="rounded"
                   />
                 </div>
